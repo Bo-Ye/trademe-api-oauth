@@ -9,8 +9,8 @@
     </servlet>
 
     <servlet>
-        <servlet-name>WatchList</servlet-name>
-        <servlet-class>com.boye.trademe.WatchList</servlet-class>
+        <servlet-name>WatchListCallback</servlet-name>
+        <servlet-class>com.boye.trademe.WatchListCallback</servlet-class>
     </servlet>
 
     <servlet-mapping>
@@ -19,7 +19,7 @@
     </servlet-mapping>
 
     <servlet-mapping>
-        <servlet-name>WatchList</servlet-name>
+        <servlet-name>WatchListCallback</servlet-name>
         <url-pattern>/watch-list-callback</url-pattern>
     </servlet-mapping>
 </web-app>

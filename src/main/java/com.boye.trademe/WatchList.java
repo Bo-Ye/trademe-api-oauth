@@ -15,19 +15,19 @@ import java.io.IOException;
 
 public class WatchList extends HttpServlet {
 
-    private static final String CALLBACK = "http://localhost:8080/trademe-api-oauth";
+    private static final String CALLBACK_URL = "http://localhost:8080/trademe-api-oauth/watch-list-callback";
     private String message;
 
     public void init() throws ServletException {
         message = "Bravo";
     }
 
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         try {
             Twitter twitter = TwitterFactory.getSingleton();
-            RequestToken requestToken = twitter.getOAuthRequestToken();
+            RequestToken requestToken = twitter.getOAuthRequestToken(CALLBACK_URL);
             String token = requestToken.getToken();
-            System.out.println(token);
+            System.out.println("token: " + token);
             response.sendRedirect(requestToken.getAuthorizationURL());
 //            response.setContentType("text/html");
 //            PrintWriter out = response.getWriter();
