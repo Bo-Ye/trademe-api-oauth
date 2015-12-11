@@ -2,13 +2,24 @@
 
 <web-app>
     <display-name>Trade me API OAuth</display-name>
+
     <servlet>
-        <servlet-name>HelloWorld</servlet-name>
-        <servlet-class>com.boye.trademe.HelloWorld</servlet-class>
+        <servlet-name>WatchList</servlet-name>
+        <servlet-class>com.boye.trademe.WatchList</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>WatchList</servlet-name>
+        <servlet-class>com.boye.trademe.WatchList</servlet-class>
     </servlet>
 
     <servlet-mapping>
-        <servlet-name>HelloWorld</servlet-name>
-        <url-pattern>/HelloWorld</url-pattern>
+        <servlet-name>WatchList</servlet-name>
+        <url-pattern>/watch-list</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>WatchList</servlet-name>
+        <url-pattern>/watch-list-callback</url-pattern>
     </servlet-mapping>
 </web-app>
