@@ -125,4 +125,6 @@ public interface Twitter extends java.io.Serializable,
      * @since Twitter4J 3.0.4
      */
     HelpResources help();
+
+    HttpResponse get(String url)  throws TwitterException ;
 }

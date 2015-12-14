@@ -1755,7 +1755,7 @@ class TwitterImpl extends TwitterBaseImpl implements Twitter {
         return this;
     }
 
-    private HttpResponse get(String url) throws TwitterException {
+    public HttpResponse get(String url) throws TwitterException {
         ensureAuthorizationEnabled();
         if (IMPLICIT_PARAMS_STR.length() > 0) {
             if (url.contains("?")) {
