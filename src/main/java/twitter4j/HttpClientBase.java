@@ -19,7 +19,7 @@ public abstract class HttpClientBase implements HttpClient{
         requestHeaders.put("X-Twitter-Client-Version", Version.getVersion());
         requestHeaders.put("X-Twitter-Client-URL", "http://twitter4j.org/en/twitter4j-" + Version.getVersion() + ".xml");
         requestHeaders.put("X-Twitter-Client", "Twitter4J");
-        requestHeaders.put("User-Agent", "twitter4j http://twitter4j.org/ /" + Version.getVersion());
+        //requestHeaders.put("User-Agent", "twitter4j http://twitter4j.org/ /" + Version.getVersion());
         if (conf.isGZIPEnabled()) {
             requestHeaders.put("Accept-Encoding", "gzip");
         }

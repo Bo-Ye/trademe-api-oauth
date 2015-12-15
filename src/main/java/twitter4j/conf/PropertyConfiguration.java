@@ -24,7 +24,7 @@ import java.util.Properties;
 /**
  * @author Yusuke Yamamoto - yusuke at mac.com
  */
-public final class PropertyConfiguration extends ConfigurationBase implements java.io.Serializable {
+public final class PropertyConfiguration extends ConfigurationBase  {
 
     
 
@@ -38,21 +38,9 @@ public final class PropertyConfiguration extends ConfigurationBase implements ja
     
 
 
-    public PropertyConfiguration(InputStream is) {
-        super();
-        Properties props = new Properties();
-        loadProperties(props, is);
-        setFieldsWithTreePath(props, "/");
-    }
 
-    public PropertyConfiguration(Properties props) {
-        this(props, "/");
-    }
 
-    public PropertyConfiguration(Properties props, String treePath) {
-        super();
-        setFieldsWithTreePath(props, treePath);
-    }
+
 
     PropertyConfiguration(String treePath) {
         super();
@@ -200,28 +188,7 @@ public final class PropertyConfiguration extends ConfigurationBase implements ja
         cacheInstance();
     }
 
-    boolean getBoolean(Properties props, String prefix, String name) {
-        String value = props.getProperty(prefix + name);
-        return Boolean.valueOf(value);
-    }
 
-    int getIntProperty(Properties props, String prefix, String name) {
-        String value = props.getProperty(prefix + name);
-        try {
-            return Integer.parseInt(value);
-        } catch (NumberFormatException nfe) {
-            return -1;
-        }
-    }
-
-    long getLongProperty(Properties props, String prefix, String name) {
-        String value = props.getProperty(prefix + name);
-        try {
-            return Long.parseLong(value);
-        } catch (NumberFormatException nfe) {
-            return -1L;
-        }
-    }
 
     String getString(Properties props, String prefix, String name) {
         return props.getProperty(prefix + name);

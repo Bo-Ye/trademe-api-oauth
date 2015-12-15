@@ -130,54 +130,8 @@ class ConfigurationBase implements Configuration {
             return gzipEnabled;
         }
 
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
 
-            MyHttpClientConfiguration that = (MyHttpClientConfiguration) o;
 
-            if (gzipEnabled != that.gzipEnabled) return false;
-            if (httpConnectionTimeout != that.httpConnectionTimeout) return false;
-            if (httpProxyPort != that.httpProxyPort) return false;
-            if (httpReadTimeout != that.httpReadTimeout) return false;
-            if (prettyDebug != that.prettyDebug) return false;
-            if (httpProxyHost != null ? !httpProxyHost.equals(that.httpProxyHost) : that.httpProxyHost != null)
-                return false;
-            if (httpProxyPassword != null ? !httpProxyPassword.equals(that.httpProxyPassword) : that.httpProxyPassword != null)
-                return false;
-            if (httpProxyUser != null ? !httpProxyUser.equals(that.httpProxyUser) : that.httpProxyUser != null)
-                return false;
-
-            return true;
-        }
-
-        @Override
-        public int hashCode() {
-            int result = httpProxyHost != null ? httpProxyHost.hashCode() : 0;
-            result = 31 * result + (httpProxyUser != null ? httpProxyUser.hashCode() : 0);
-            result = 31 * result + (httpProxyPassword != null ? httpProxyPassword.hashCode() : 0);
-            result = 31 * result + httpProxyPort;
-            result = 31 * result + httpConnectionTimeout;
-            result = 31 * result + httpReadTimeout;
-            result = 31 * result + (prettyDebug ? 1 : 0);
-            result = 31 * result + (gzipEnabled ? 1 : 0);
-            return result;
-        }
-
-        @Override
-        public String toString() {
-            return "MyHttpClientConfiguration{" +
-                    "httpProxyHost='" + httpProxyHost + '\'' +
-                    ", httpProxyUser='" + httpProxyUser + '\'' +
-                    ", httpProxyPassword='" + httpProxyPassword + '\'' +
-                    ", httpProxyPort=" + httpProxyPort +
-                    ", httpConnectionTimeout=" + httpConnectionTimeout +
-                    ", httpReadTimeout=" + httpReadTimeout +
-                    ", prettyDebug=" + prettyDebug +
-                    ", gzipEnabled=" + gzipEnabled +
-                    '}';
-        }
     }
 
 
@@ -192,103 +146,7 @@ class ConfigurationBase implements Configuration {
 
 
 
-    protected final void setPrettyDebugEnabled(boolean prettyDebug) {
-        httpConf = new MyHttpClientConfiguration(httpConf.getHttpProxyHost()
-                , httpConf.getHttpProxyUser()
-                , httpConf.getHttpProxyPassword()
-                , httpConf.getHttpProxyPort()
-                , httpConf.getHttpConnectionTimeout()
-                , httpConf.getHttpReadTimeout()
-                , prettyDebug
-                , httpConf.isGZIPEnabled()
-        );
-    }
 
-    protected final void setGZIPEnabled(boolean gzipEnabled) {
-        httpConf = new MyHttpClientConfiguration(httpConf.getHttpProxyHost()
-                , httpConf.getHttpProxyUser()
-                , httpConf.getHttpProxyPassword()
-                , httpConf.getHttpProxyPort()
-                , httpConf.getHttpConnectionTimeout()
-                , httpConf.getHttpReadTimeout()
-                , httpConf.isPrettyDebugEnabled()
-                , gzipEnabled
-        );
-    }
-
-    // methods for HttpClientConfiguration
-
-    protected final void setHttpProxyHost(String proxyHost) {
-        httpConf = new MyHttpClientConfiguration(proxyHost
-                , httpConf.getHttpProxyUser()
-                , httpConf.getHttpProxyPassword()
-                , httpConf.getHttpProxyPort()
-                , httpConf.getHttpConnectionTimeout()
-                , httpConf.getHttpReadTimeout()
-                , httpConf.isPrettyDebugEnabled()
-                , httpConf.isGZIPEnabled()
-        );
-    }
-
-    protected final void setHttpProxyUser(String proxyUser) {
-        httpConf = new MyHttpClientConfiguration(httpConf.getHttpProxyHost()
-                , proxyUser
-                , httpConf.getHttpProxyPassword()
-                , httpConf.getHttpProxyPort()
-                , httpConf.getHttpConnectionTimeout()
-                , httpConf.getHttpReadTimeout()
-                , httpConf.isPrettyDebugEnabled()
-                , httpConf.isGZIPEnabled()
-        );
-    }
-
-    protected final void setHttpProxyPassword(String proxyPassword) {
-        httpConf = new MyHttpClientConfiguration(httpConf.getHttpProxyHost()
-                , httpConf.getHttpProxyUser()
-                , proxyPassword
-                , httpConf.getHttpProxyPort()
-                , httpConf.getHttpConnectionTimeout()
-                , httpConf.getHttpReadTimeout()
-                , httpConf.isPrettyDebugEnabled()
-                , httpConf.isGZIPEnabled()
-        );
-    }
-
-    protected final void setHttpProxyPort(int proxyPort) {
-        httpConf = new MyHttpClientConfiguration(httpConf.getHttpProxyHost()
-                , httpConf.getHttpProxyUser()
-                , httpConf.getHttpProxyPassword()
-                , proxyPort
-                , httpConf.getHttpConnectionTimeout()
-                , httpConf.getHttpReadTimeout()
-                , httpConf.isPrettyDebugEnabled()
-                , httpConf.isGZIPEnabled()
-        );
-    }
-
-    protected final void setHttpConnectionTimeout(int connectionTimeout) {
-        httpConf = new MyHttpClientConfiguration(httpConf.getHttpProxyHost()
-                , httpConf.getHttpProxyUser()
-                , httpConf.getHttpProxyPassword()
-                , httpConf.getHttpProxyPort()
-                , connectionTimeout
-                , httpConf.getHttpReadTimeout()
-                , httpConf.isPrettyDebugEnabled()
-                , httpConf.isGZIPEnabled()
-        );
-    }
-
-    protected final void setHttpReadTimeout(int readTimeout) {
-        httpConf = new MyHttpClientConfiguration(httpConf.getHttpProxyHost()
-                , httpConf.getHttpProxyUser()
-                , httpConf.getHttpProxyPassword()
-                , httpConf.getHttpProxyPort()
-                , httpConf.getHttpConnectionTimeout()
-                , readTimeout
-                , httpConf.isPrettyDebugEnabled()
-                , httpConf.isGZIPEnabled()
-        );
-    }
 
 
 
@@ -389,21 +247,7 @@ class ConfigurationBase implements Configuration {
 
 
 
-    static String fixURL(boolean useSSL, String url) {
-        if (null == url) {
-            return null;
-        }
-        int index = url.indexOf("://");
-        if (-1 == index) {
-            throw new IllegalArgumentException("url should contain '://'");
-        }
-        String hostAndLater = url.substring(index + 3);
-        if (useSSL) {
-            return "https://" + hostAndLater;
-        } else {
-            return "http://" + hostAndLater;
-        }
-    }
+
 
 
 

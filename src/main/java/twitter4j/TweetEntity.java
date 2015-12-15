@@ -15,12 +15,7 @@
  */
 package twitter4j;
 
-/**
- * super interface of UserMentionEntity, URLEntity and HashtagEntity
- *
- * @author Yusuke Yamamoto - yusuke at mac.com
- * @since Twitter4J 3.0.4
- */
+
 public interface TweetEntity {
     /**
      * Returns the text of the entity

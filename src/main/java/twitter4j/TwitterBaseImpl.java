@@ -19,9 +19,6 @@ package twitter4j;
 import twitter4j.auth.*;
 import twitter4j.conf.Configuration;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-
 /**
  * Base class of Twitter / AsyncTwitter / TwitterStream supports OAuth.
  *
@@ -37,7 +34,7 @@ abstract class TwitterBaseImpl implements TwitterBase,  OAuthSupport,  HttpRespo
     transient HttpClient http;
 
 
-    ObjectFactory factory;
+
 
     Authorization auth;
 
@@ -111,28 +108,7 @@ abstract class TwitterBaseImpl implements TwitterBase,  OAuthSupport,  HttpRespo
         }
     }
 
-    private void writeObject(java.io.ObjectOutputStream out) throws IOException {
-        // http://docs.oracle.com/javase/6/docs/platform/serialization/spec/output.html#861
-        out.putFields();
-        out.writeFields();
 
-        out.writeObject(conf);
-        out.writeObject(auth);
-
-
-    }
-
-    private void readObject(ObjectInputStream stream)
-        throws IOException, ClassNotFoundException {
-        // http://docs.oracle.com/javase/6/docs/platform/serialization/spec/input.html#2971
-        stream.readFields();
-
-        conf = (Configuration) stream.readObject();
-        auth = (Authorization) stream.readObject();
-
-        http = HttpClientFactory.getInstance(conf.getHttpClientConfiguration());
-
-    }
 
 
     // methods declared in OAuthSupport interface

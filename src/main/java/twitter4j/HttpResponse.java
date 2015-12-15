@@ -116,81 +116,11 @@ public abstract class HttpResponse {
         return responseAsString;
     }
 
-    private JSONObject json = null;
 
-    /**
-     * Returns the response body as twitter4j.JSONObject.<br>
-     * Disconnects the internal HttpURLConnection silently.
-     *
-     * @return response body as twitter4j.JSONObject
-     * @throws TwitterException when the response body is not in JSON Object format
-     */
-    public JSONObject asJSONObject() throws TwitterException {
-        if (json == null) {
-            Reader reader = null;
-            try {
-                if (responseAsString == null) {
-                    reader = asReader();
-                    json = new JSONObject(new JSONTokener(reader));
-                } else {
-                    json = new JSONObject(responseAsString);
-                }
 
-            } catch (JSONException jsone) {
-                if (responseAsString == null) {
-                    throw new TwitterException(jsone.getMessage(), jsone);
-                } else {
-                    throw new TwitterException(jsone.getMessage() + ":" + this.responseAsString, jsone);
-                }
-            } finally {
-                if (reader != null) {
-                    try {
-                        reader.close();
-                    } catch (IOException ignore) {
-                    }
-                }
-                disconnectForcibly();
-            }
-        }
-        return json;
-    }
 
-    private JSONArray jsonArray = null;
 
-    /**
-     * Returns the response body as twitter4j.JSONArray.<br>
-     * Disconnects the internal HttpURLConnection silently.
-     *
-     * @return response body as twitter4j.JSONArray
-     * @throws TwitterException when the response body is not in JSON Array format
-     */
-    public JSONArray asJSONArray() throws TwitterException {
-        if (jsonArray == null) {
-            Reader reader = null;
-            try {
-                if (responseAsString == null) {
-                    reader = asReader();
-                    jsonArray = new JSONArray(new JSONTokener(reader));
-                } else {
-                    jsonArray = new JSONArray(responseAsString);
-                }
 
-            } catch (JSONException jsone) {
-
-                    throw new TwitterException(jsone.getMessage(), jsone);
-
-            } finally {
-                if (reader != null) {
-                    try {
-                        reader.close();
-                    } catch (IOException ignore) {
-                    }
-                }
-                disconnectForcibly();
-            }
-        }
-        return jsonArray;
-    }
 
     public Reader asReader() {
         try {

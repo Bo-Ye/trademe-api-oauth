@@ -16,8 +16,6 @@
 
 package twitter4j;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -37,32 +35,9 @@ final class ParseUtil {
         throw new AssertionError();
     }
 
-    static String getUnescapedString(String str, JSONObject json) {
-        return HTMLEntity.unescape(getRawString(str, json));
-    }
 
-    public static String getRawString(String name, JSONObject json) {
-        try {
-            if (json.isNull(name)) {
-                return null;
-            } else {
-                return json.getString(name);
-            }
-        } catch (JSONException jsone) {
-            return null;
-        }
-    }
 
-    static String getURLDecodedString(String name, JSONObject json) {
-        String returnValue = getRawString(name, json);
-        if (returnValue != null) {
-            try {
-                returnValue = URLDecoder.decode(returnValue, "UTF-8");
-            } catch (UnsupportedEncodingException ignore) {
-            }
-        }
-        return returnValue;
-    }
+
 
     public static Date parseTrendsDate(String asOfStr) throws TwitterException {
         Date parsed;
@@ -80,18 +55,7 @@ final class ParseUtil {
     }
 
 
-    public static Date getDate(String name, JSONObject json) throws TwitterException {
-        return getDate(name, json, "EEE MMM d HH:mm:ss z yyyy");
-    }
 
-    public static Date getDate(String name, JSONObject json, String format) throws TwitterException {
-        String dateStr = getUnescapedString(name, json);
-        if ("null".equals(dateStr) || null == dateStr) {
-            return null;
-        } else {
-            return getDate(dateStr, format);
-        }
-    }
 
     private final static Map<String, LinkedBlockingQueue<SimpleDateFormat>> formatMapQueue = new HashMap<String,
             LinkedBlockingQueue<SimpleDateFormat>>();
@@ -121,9 +85,7 @@ final class ParseUtil {
         }
     }
 
-    public static int getInt(String name, JSONObject json) {
-        return getInt(getRawString(name, json));
-    }
+
 
     public static int getInt(String str) {
         if (null == str || "".equals(str) || "null".equals(str)) {
@@ -138,9 +100,7 @@ final class ParseUtil {
         }
     }
 
-    public static long getLong(String name, JSONObject json) {
-        return getLong(getRawString(name, json));
-    }
+
 
     public static long getLong(String str) {
         if (null == str || "".equals(str) || "null".equals(str)) {
@@ -155,22 +115,9 @@ final class ParseUtil {
         }
     }
 
-    public static double getDouble(String name, JSONObject json) {
-        String str2 = getRawString(name, json);
-        if (null == str2 || "".equals(str2) || "null".equals(str2)) {
-            return -1;
-        } else {
-            return Double.valueOf(str2);
-        }
-    }
 
-    public static boolean getBoolean(String name, JSONObject json) {
-        String str = getRawString(name, json);
-        if (null == str || "null".equals(str)) {
-            return false;
-        }
-        return Boolean.valueOf(str);
-    }
+
+
 
 
     public static int toAccessLevel(HttpResponse res) {

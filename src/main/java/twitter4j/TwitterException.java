@@ -18,8 +18,6 @@ package twitter4j;
 
 import java.util.List;
 
-import static twitter4j.ParseUtil.getInt;
-
 /**
  * An exception class that will be thrown when TwitterAPI calls are failed.<br>
  * In case the Twitter server returned HTTP error code, you can get the HTTP status code using getStatusCode() method.
@@ -36,7 +34,7 @@ public class TwitterException extends Exception implements TwitterResponse, Http
 
     public TwitterException(String message, Throwable cause) {
         super(message, cause);
-        decode(message);
+
     }
 
     public TwitterException(String message) {
@@ -80,19 +78,7 @@ public class TwitterException extends Exception implements TwitterResponse, Http
         }
     }
 
-    private void decode(String str) {
-        if (str != null && str.startsWith("{")) {
-            try {
-                JSONObject json = new JSONObject(str);
-                if (!json.isNull("errors")) {
-                    JSONObject error = json.getJSONArray("errors").getJSONObject(0);
-                    this.errorMessage = error.getString("message");
-                    this.errorCode = getInt("code", error);
-                }
-            } catch (JSONException ignore) {
-            }
-        }
-    }
+
 
     public int getStatusCode() {
         return this.statusCode;
