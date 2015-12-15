@@ -25,7 +25,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -113,9 +112,7 @@ class TwitterImpl extends TwitterBaseImpl implements Twitter {
 
 
 
-    public Map<String, RateLimitStatus> getRateLimitStatus() throws TwitterException {
-        return factory.createRateLimitStatuses(get(conf.getRestBaseURL() + "application/rate_limit_status.json"));
-    }
+
 
 
     public HttpResponse get(String url) throws TwitterException {
@@ -137,7 +134,7 @@ class TwitterImpl extends TwitterBaseImpl implements Twitter {
                 response = http.get(url, null, auth, this);
             } finally {
                 long elapsedTime = System.currentTimeMillis() - start;
-                TwitterAPIMonitor.getInstance().methodCalled(url, elapsedTime, isOk(response));
+
             }
             return response;
         }
@@ -155,7 +152,7 @@ class TwitterImpl extends TwitterBaseImpl implements Twitter {
                 response = http.get(url, mergeImplicitParams(params), auth, this);
             } finally {
                 long elapsedTime = System.currentTimeMillis() - start;
-                TwitterAPIMonitor.getInstance().methodCalled(url, elapsedTime, isOk(response));
+
             }
             return response;
         }
@@ -173,7 +170,7 @@ class TwitterImpl extends TwitterBaseImpl implements Twitter {
                 response = http.post(url, IMPLICIT_PARAMS, auth, this);
             } finally {
                 long elapsedTime = System.currentTimeMillis() - start;
-                TwitterAPIMonitor.getInstance().methodCalled(url, elapsedTime, isOk(response));
+
             }
             return response;
         }
@@ -191,7 +188,7 @@ class TwitterImpl extends TwitterBaseImpl implements Twitter {
                 response = http.post(url, mergeImplicitParams(params), auth, this);
             } finally {
                 long elapsedTime = System.currentTimeMillis() - start;
-                TwitterAPIMonitor.getInstance().methodCalled(url, elapsedTime, isOk(response));
+
             }
             return response;
         }

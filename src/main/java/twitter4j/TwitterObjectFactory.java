@@ -59,21 +59,6 @@ public final class TwitterObjectFactory {
 
 
 
-    /**
-     * Constructs a RateLimitStatus object from rawJSON string.
-     *
-     * @param rawJSON raw JSON form as String
-     * @return RateLimitStatus
-     * @throws TwitterException when provided string is not a valid JSON string.
-     * @since Twitter4J 2.1.7
-     */
-    public static Map<String, RateLimitStatus> createRateLimitStatus(String rawJSON) throws TwitterException {
-        try {
-            return RateLimitStatusJSONImpl.createRateLimitStatuses(new JSONObject(rawJSON));
-        } catch (JSONException e) {
-            throw new TwitterException(e);
-        }
-    }
 
 
 

@@ -16,8 +16,6 @@
  */
 package twitter4j;
 
-import java.util.Map;
-
 /**
  * @author Yusuke Yamamoto - yusuke at mac.com
  * @since Twitter4J 2.2.4
@@ -25,7 +23,7 @@ import java.util.Map;
 interface ObjectFactory extends java.io.Serializable {
 
 
-    Map<String, RateLimitStatus> createRateLimitStatuses(HttpResponse res) throws TwitterException;
+
 
 
 
