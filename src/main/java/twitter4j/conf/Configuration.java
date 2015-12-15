@@ -19,29 +19,17 @@ package twitter4j.conf;
 import twitter4j.HttpClientConfiguration;
 import twitter4j.auth.AuthorizationConfiguration;
 
-import java.util.Properties;
-
 /**
  * @author Yusuke Yamamoto - yusuke at mac.com
  */
-public interface Configuration extends AuthorizationConfiguration, java.io.Serializable {
+public interface Configuration extends AuthorizationConfiguration {
 
-    boolean isDebugEnabled();
 
-    boolean isApplicationOnlyAuthEnabled();
-
-    @Override
-    String getUser();
-
-    @Override
-    String getPassword();
 
     // methods for HttpClientConfiguration
     HttpClientConfiguration getHttpClientConfiguration();
 
-    int getHttpStreamingReadTimeout();
 
-    // oauth related setter/getters
 
     @Override
     String getOAuthConsumerKey();
@@ -49,25 +37,7 @@ public interface Configuration extends AuthorizationConfiguration, java.io.Seria
     @Override
     String getOAuthConsumerSecret();
 
-    @Override
-    String getOAuthAccessToken();
 
-    @Override
-    String getOAuthAccessTokenSecret();
-
-    @Override
-    String getOAuth2TokenType();
-
-    @Override
-    String getOAuth2AccessToken();
-
-    String getOAuth2Scope();
-
-    String getRestBaseURL();
-
-    String getUploadBaseURL();
-
-    String getStreamBaseURL();
 
     String getOAuthRequestTokenURL();
 
@@ -75,45 +45,7 @@ public interface Configuration extends AuthorizationConfiguration, java.io.Seria
 
     String getOAuthAccessTokenURL();
 
-    String getOAuthAuthenticationURL();
 
-    String getOAuth2TokenURL();
 
-    String getOAuth2InvalidateTokenURL();
 
-    String getUserStreamBaseURL();
-
-    String getSiteStreamBaseURL();
-
-    boolean isIncludeMyRetweetEnabled();
-
-    boolean isJSONStoreEnabled();
-
-    boolean isMBeanEnabled();
-
-    boolean isUserStreamRepliesAllEnabled();
-
-    boolean isUserStreamWithFollowingsEnabled();
-
-    boolean isStallWarningsEnabled();
-
-    String getMediaProvider();
-
-    String getMediaProviderAPIKey();
-
-    Properties getMediaProviderParameters();
-
-    int getAsyncNumThreads();
-
-    long getContributingTo();
-
-    String getDispatcherImpl();
-
-    String getLoggerFactory();
-
-    boolean isIncludeEntitiesEnabled();
-
-    boolean isTrimUserEnabled();
-
-    boolean isDaemonEnabled();
 }

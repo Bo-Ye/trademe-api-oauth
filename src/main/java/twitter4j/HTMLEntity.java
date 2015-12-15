@@ -16,7 +16,6 @@
 
 package twitter4j;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -76,89 +75,7 @@ final class HTMLEntity {
         }
     }
 
-    static String unescapeAndSlideEntityIncdices(String text, UserMentionEntity[] userMentionEntities,
-                                                 URLEntity[] urlEntities, HashtagEntity[] hashtagEntities,
-                                                 MediaEntity[] mediaEntities) {
-        
-        int entityIndexesLength = 0;
-        entityIndexesLength += userMentionEntities == null ? 0 : userMentionEntities.length;
-        entityIndexesLength += urlEntities == null ? 0 : urlEntities.length;
-        entityIndexesLength += hashtagEntities == null ? 0 : hashtagEntities.length;
-        entityIndexesLength += mediaEntities == null ? 0 : mediaEntities.length;
 
-        EntityIndex[] entityIndexes = new EntityIndex[entityIndexesLength];
-        int copyStartIndex = 0;
-        if (userMentionEntities != null) {
-            System.arraycopy(userMentionEntities, 0, entityIndexes, copyStartIndex, userMentionEntities.length);
-            copyStartIndex += userMentionEntities.length;
-        }
-        
-        if (urlEntities != null) {
-            System.arraycopy(urlEntities, 0, entityIndexes, copyStartIndex, urlEntities.length);
-            copyStartIndex += urlEntities.length;
-        }
-        
-        if (hashtagEntities != null) {
-            System.arraycopy(hashtagEntities, 0, entityIndexes, copyStartIndex, hashtagEntities.length);
-            copyStartIndex += hashtagEntities.length;
-        }
-        
-        if (mediaEntities != null) {
-            System.arraycopy(mediaEntities, 0, entityIndexes, copyStartIndex, mediaEntities.length);
-        }
-
-        Arrays.sort(entityIndexes);
-        boolean handlingStart = true;
-        int entityIndex = 0;
-
-        int delta = 0;
-        int semicolonIndex;
-        String escaped;
-        String entity;
-        StringBuilder unescaped = new StringBuilder(text.length());
-
-        for (int i = 0; i < text.length(); i++) {
-            char c = text.charAt(i);
-            if (c == '&') {
-                semicolonIndex = text.indexOf(";", i);
-                if (-1 != semicolonIndex) {
-                    escaped = text.substring(i, semicolonIndex + 1);
-                    entity = escapeEntityMap.get(escaped);
-                    if (entity != null) {
-                        unescaped.append(entity);
-                        i = semicolonIndex;
-                        delta=1-escaped.length();
-                    } else {
-                        unescaped.append(c);
-                    }
-                } else {
-                    unescaped.append(c);
-                }
-            } else {
-                unescaped.append(c);
-            }
-            if (entityIndex < entityIndexes.length) {
-                if (handlingStart) {
-                    if (entityIndexes[entityIndex].getStart() == (delta + i)) {
-                        entityIndexes[entityIndex].setStart(unescaped.length() - 1);
-                        handlingStart = false;
-                    }
-                } else if (entityIndexes[entityIndex].getEnd() == (delta + i)) {
-                    entityIndexes[entityIndex].setEnd(unescaped.length() - 1);
-                    entityIndex++;
-                    handlingStart = true;
-                }
-            }
-            delta = 0;
-        }
-        if (entityIndex < entityIndexes.length) {
-            if (entityIndexes[entityIndex].getEnd() == (text.length())) {
-                entityIndexes[entityIndex].setEnd(unescaped.length());
-            }
-        }
-
-        return unescaped.toString();
-    }
 
     private static final Map<String, String> entityEscapeMap = new HashMap<String, String>();
     private static final Map<String, String> escapeEntityMap = new HashMap<String, String>();

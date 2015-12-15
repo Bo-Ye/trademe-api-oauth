@@ -55,12 +55,6 @@ public final class RequestToken extends OAuthToken implements java.io.Serializab
         return conf.getOAuthAuthorizationURL() + "?oauth_token=" + getToken();
     }
 
-    /**
-     * @return authentication URL
-     * since Twitter4J 2.0.10
-     */
-    public String getAuthenticationURL() {
-        return conf.getOAuthAuthenticationURL() + "?oauth_token=" + getToken();
-    }
+
 
 }

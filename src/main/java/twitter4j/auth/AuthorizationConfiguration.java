@@ -24,9 +24,7 @@ package twitter4j.auth;
  */
 public interface AuthorizationConfiguration {
 
-    String getUser();
 
-    String getPassword();
 
     String getOAuthConsumerKey();
 
@@ -34,9 +32,5 @@ public interface AuthorizationConfiguration {
 
     String getOAuthAccessToken();
 
-    String getOAuthAccessTokenSecret();
 
-    String getOAuth2TokenType();
-
-    String getOAuth2AccessToken();
 }

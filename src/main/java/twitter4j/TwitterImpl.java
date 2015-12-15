@@ -20,9 +20,6 @@ package twitter4j;
 import twitter4j.auth.Authorization;
 import twitter4j.conf.Configuration;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -35,40 +32,26 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Yusuke Yamamoto - yusuke at mac.com
  */
 class TwitterImpl extends TwitterBaseImpl implements Twitter {
-    private static final long serialVersionUID = 9170943084096085770L;
+
     private static final ConcurrentHashMap<Configuration, HttpParameter[]> implicitParamsMap = new ConcurrentHashMap<Configuration, HttpParameter[]>();
     private static final ConcurrentHashMap<Configuration, String> implicitParamsStrMap = new ConcurrentHashMap<Configuration, String>();
     private final String IMPLICIT_PARAMS_STR;
     private final HttpParameter[] IMPLICIT_PARAMS;
-    private final HttpParameter INCLUDE_MY_RETWEET;
+
 
     /*package*/
     TwitterImpl(Configuration conf, Authorization auth) {
         super(conf, auth);
-        INCLUDE_MY_RETWEET = new HttpParameter("include_my_retweet", conf.isIncludeMyRetweetEnabled());
+
         if (implicitParamsMap.containsKey(conf)) {
             this.IMPLICIT_PARAMS = implicitParamsMap.get(conf);
             this.IMPLICIT_PARAMS_STR = implicitParamsStrMap.get(conf);
         } else {
-            String implicitParamsStr = conf.isIncludeEntitiesEnabled() ? "include_entities=" + true : "";
-            boolean contributorsEnabled = conf.getContributingTo() != -1L;
-            if (contributorsEnabled) {
-                if (!"".equals(implicitParamsStr)) {
-                    implicitParamsStr += "?";
-                }
-                implicitParamsStr += "contributingto=" + conf.getContributingTo();
-            }
+            String implicitParamsStr = "";
+
 
             List<HttpParameter> params = new ArrayList<HttpParameter>(3);
-            if (conf.isIncludeEntitiesEnabled()) {
-                params.add(new HttpParameter("include_entities", "true"));
-            }
-            if (contributorsEnabled) {
-                params.add(new HttpParameter("contributingto", conf.getContributingTo()));
-            }
-            if (conf.isTrimUserEnabled()) {
-                params.add(new HttpParameter("trim_user", "1"));
-            }
+
             HttpParameter[] implicitParams = params.toArray(new HttpParameter[params.size()]);
 
             // implicitParamsMap.containsKey() is evaluated in the above if clause.
@@ -90,23 +73,7 @@ class TwitterImpl extends TwitterBaseImpl implements Twitter {
     }
 
 
-    /**
-     * Check the existence, and the type of the specified file.
-     *
-     * @param image image to be uploaded
-     * @throws TwitterException when the specified file is not found (FileNotFoundException will be nested)
-     *                          , or when the specified file object is not representing a file(IOException will be nested).
-     */
-    private void checkFileValidity(File image) throws TwitterException {
-        if (!image.exists()) {
-            //noinspection ThrowableInstanceNeverThrown
-            throw new TwitterException(new FileNotFoundException(image + " is not found."));
-        }
-        if (!image.isFile()) {
-            //noinspection ThrowableInstanceNeverThrown
-            throw new TwitterException(new IOException(image + " is not a file."));
-        }
-    }
+
 
 
 
@@ -124,74 +91,30 @@ class TwitterImpl extends TwitterBaseImpl implements Twitter {
                 url = url + "?" + IMPLICIT_PARAMS_STR;
             }
         }
-        if (!conf.isMBeanEnabled()) {
-            return http.get(url, null, auth, this);
-        } else {
-            // intercept HTTP call for monitoring purposes
-            HttpResponse response = null;
-            long start = System.currentTimeMillis();
-            try {
-                response = http.get(url, null, auth, this);
-            } finally {
-                long elapsedTime = System.currentTimeMillis() - start;
 
-            }
-            return response;
-        }
+            return http.get(url, null, auth, this);
+
     }
 
     private HttpResponse get(String url, HttpParameter... params) throws TwitterException {
         ensureAuthorizationEnabled();
-        if (!conf.isMBeanEnabled()) {
-            return http.get(url, mergeImplicitParams(params), auth, this);
-        } else {
-            // intercept HTTP call for monitoring purposes
-            HttpResponse response = null;
-            long start = System.currentTimeMillis();
-            try {
-                response = http.get(url, mergeImplicitParams(params), auth, this);
-            } finally {
-                long elapsedTime = System.currentTimeMillis() - start;
 
-            }
-            return response;
-        }
+            return http.get(url, mergeImplicitParams(params), auth, this);
+
     }
 
     private HttpResponse post(String url) throws TwitterException {
         ensureAuthorizationEnabled();
-        if (!conf.isMBeanEnabled()) {
-            return http.post(url, IMPLICIT_PARAMS, auth, this);
-        } else {
-            // intercept HTTP call for monitoring purposes
-            HttpResponse response = null;
-            long start = System.currentTimeMillis();
-            try {
-                response = http.post(url, IMPLICIT_PARAMS, auth, this);
-            } finally {
-                long elapsedTime = System.currentTimeMillis() - start;
 
-            }
-            return response;
-        }
+            return http.post(url, IMPLICIT_PARAMS, auth, this);
+
     }
 
     private HttpResponse post(String url, HttpParameter... params) throws TwitterException {
         ensureAuthorizationEnabled();
-        if (!conf.isMBeanEnabled()) {
-            return http.post(url, mergeImplicitParams(params), auth, this);
-        } else {
-            // intercept HTTP call for monitoring purposes
-            HttpResponse response = null;
-            long start = System.currentTimeMillis();
-            try {
-                response = http.post(url, mergeImplicitParams(params), auth, this);
-            } finally {
-                long elapsedTime = System.currentTimeMillis() - start;
 
-            }
-            return response;
-        }
+            return http.post(url, mergeImplicitParams(params), auth, this);
+
     }
 
     private HttpParameter[] mergeParameters(HttpParameter[] params1, HttpParameter[] params2) {

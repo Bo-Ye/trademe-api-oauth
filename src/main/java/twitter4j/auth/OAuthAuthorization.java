@@ -31,14 +31,14 @@ import java.util.*;
  * @author Yusuke Yamamoto - yusuke at mac.com
  * @see <a href="http://oauth.net/core/1.0a/">OAuth Core 1.0a</a>
  */
-public class OAuthAuthorization implements Authorization, java.io.Serializable, OAuthSupport {
+public class OAuthAuthorization implements Authorization, OAuthSupport {
     private static final long serialVersionUID = -886869424811858868L;
     private final Configuration conf;
     private transient static HttpClient http;
 
     private static final String HMAC_SHA1 = "HmacSHA1";
     private static final HttpParameter OAUTH_SIGNATURE_METHOD = new HttpParameter("oauth_signature_method", "HMAC-SHA1");
-    private static final Logger logger = Logger.getLogger(OAuthAuthorization.class);
+
     private String consumerKey = "";
     private String consumerSecret;
 
@@ -55,9 +55,7 @@ public class OAuthAuthorization implements Authorization, java.io.Serializable, 
         this.conf = conf;
         http = HttpClientFactory.getInstance(conf.getHttpClientConfiguration());
         setOAuthConsumer(conf.getOAuthConsumerKey(), conf.getOAuthConsumerSecret());
-        if (conf.getOAuthAccessToken() != null && conf.getOAuthAccessTokenSecret() != null) {
-            setOAuthAccessToken(new AccessToken(conf.getOAuthAccessToken(), conf.getOAuthAccessTokenSecret()));
-        }
+
     }
 
     // implementations for Authorization
@@ -205,9 +203,9 @@ public class OAuthAuthorization implements Authorization, java.io.Serializable, 
                 .append(HttpParameter.encode(constructRequestURL(url))).append("&");
         base.append(HttpParameter.encode(normalizeRequestParameters(signatureBaseParams)));
         String oauthBaseString = base.toString();
-        logger.debug("OAuth base string: ", oauthBaseString);
+
         String signature = generateSignature(oauthBaseString, otoken);
-        logger.debug("OAuth signature: ", signature);
+
 
         oauthHeaderParams.add(new HttpParameter("oauth_signature", signature));
 
@@ -315,10 +313,10 @@ public class OAuthAuthorization implements Authorization, java.io.Serializable, 
             mac.init(spec);
             byteHMAC = mac.doFinal(data.getBytes());
         } catch (InvalidKeyException ike) {
-            logger.error("Failed initialize \"Message Authentication Code\" (MAC)", ike);
+
             throw new AssertionError(ike);
         } catch (NoSuchAlgorithmException nsae) {
-            logger.error("Failed to get HmacSHA1 \"Message Authentication Code\" (MAC)", nsae);
+
             throw new AssertionError(nsae);
         }
         return BASE64Encoder.encode(byteHMAC);
@@ -444,37 +442,5 @@ public class OAuthAuthorization implements Authorization, java.io.Serializable, 
     }
 
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof OAuthSupport)) return false;
 
-        OAuthAuthorization that = (OAuthAuthorization) o;
-
-        if (consumerKey != null ? !consumerKey.equals(that.consumerKey) : that.consumerKey != null)
-            return false;
-        if (consumerSecret != null ? !consumerSecret.equals(that.consumerSecret) : that.consumerSecret != null)
-            return false;
-        if (oauthToken != null ? !oauthToken.equals(that.oauthToken) : that.oauthToken != null)
-            return false;
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = consumerKey != null ? consumerKey.hashCode() : 0;
-        result = 31 * result + (consumerSecret != null ? consumerSecret.hashCode() : 0);
-        result = 31 * result + (oauthToken != null ? oauthToken.hashCode() : 0);
-        return result;
-    }
-
-    @Override
-    public String toString() {
-        return "OAuthAuthorization{" +
-                "consumerKey='" + consumerKey + '\'' +
-                ", consumerSecret='******************************************\'" +
-                ", oauthToken=" + oauthToken +
-                '}';
-    }
 }

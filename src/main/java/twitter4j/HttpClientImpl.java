@@ -21,15 +21,14 @@ import twitter4j.conf.ConfigurationContext;
 import java.io.*;
 import java.net.*;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
  * @author Yusuke Yamamoto - yusuke at mac.com
  * @since Twitter4J 2.1.2
  */
-class HttpClientImpl extends HttpClientBase implements HttpResponseCode, java.io.Serializable {
-    private static final Logger logger = Logger.getLogger(HttpClientImpl.class);
+class HttpClientImpl extends HttpClientBase implements HttpResponseCode {
+
 
 
     static {
@@ -45,7 +44,6 @@ class HttpClientImpl extends HttpClientBase implements HttpResponseCode, java.io
         }
     }
 
-    private static final long serialVersionUID = -403500272719330534L;
 
     public HttpClientImpl() {
         super(ConfigurationContext.getInstance().getHttpClientConfiguration());
@@ -117,7 +115,7 @@ class HttpClientImpl extends HttpClientBase implements HttpResponseCode, java.io
                                     write(out, boundary + "\r\n");
                                     write(out, "Content-Disposition: form-data; name=\"" + param.getName() + "\"\r\n");
                                     write(out, "Content-Type: text/plain; charset=UTF-8\r\n\r\n");
-                                    logger.debug(param.getValue());
+
                                     out.write(param.getValue().getBytes("UTF-8"));
                                     write(out, "\r\n");
                                 }
@@ -129,7 +127,7 @@ class HttpClientImpl extends HttpClientBase implements HttpResponseCode, java.io
                             con.setRequestProperty("Content-Type",
                                     "application/x-www-form-urlencoded");
                             String postParam = HttpParameter.encodeParameters(req.getParameters());
-                            logger.debug("Post Params: ", postParam);
+
                             byte[] bytes = postParam.getBytes("UTF-8");
                             con.setRequestProperty("Content-Length",
                                     Integer.toString(bytes.length));
@@ -142,20 +140,7 @@ class HttpClientImpl extends HttpClientBase implements HttpResponseCode, java.io
                     }
                     res = new HttpResponseImpl(con, CONF);
                     responseCode = con.getResponseCode();
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("Response: ");
-                        Map<String, List<String>> responseHeaders = con.getHeaderFields();
-                        for (String key : responseHeaders.keySet()) {
-                            List<String> values = responseHeaders.get(key);
-                            for (String value : values) {
-                                if (key != null) {
-                                    logger.debug(key + ": " + value);
-                                } else {
-                                    logger.debug(value);
-                                }
-                            }
-                        }
-                    }
+
                     if (responseCode < OK || (responseCode != FOUND && MULTIPLE_CHOICES <= responseCode)) {
                         if (responseCode == ENHANCE_YOUR_CLAIM ||
                                 responseCode == BAD_REQUEST ||
@@ -180,10 +165,10 @@ class HttpClientImpl extends HttpClientBase implements HttpResponseCode, java.io
                 }
             }
             try {
-                if (logger.isDebugEnabled() && res != null) {
+                if ( res != null) {
                     res.asString();
                 }
-                logger.debug("Sleeping " + CONF.getHttpRetryIntervalSeconds() + " seconds until the next retry.");
+
                 Thread.sleep(CONF.getHttpRetryIntervalSeconds() * 1000);
             } catch (InterruptedException ignore) {
                 //nothing to do
@@ -199,22 +184,17 @@ class HttpClientImpl extends HttpClientBase implements HttpResponseCode, java.io
      * @param connection HttpURLConnection
      */
     private void setHeaders(HttpRequest req, HttpURLConnection connection) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Request: ");
-            logger.debug(req.getMethod().name() + " ", req.getURL());
-        }
+
 
         String authorizationHeader;
         if (req.getAuthorization() != null && (authorizationHeader = req.getAuthorization().getAuthorizationHeader(req)) != null) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Authorization: ", authorizationHeader.replaceAll(".", "*"));
-            }
+
             connection.addRequestProperty("Authorization", authorizationHeader);
         }
         if (req.getRequestHeaders() != null) {
             for (String key : req.getRequestHeaders().keySet()) {
                 connection.addRequestProperty(key, req.getRequestHeaders().get(key));
-                logger.debug(key + ": " + req.getRequestHeaders().get(key));
+
             }
         }
     }
@@ -223,10 +203,7 @@ class HttpClientImpl extends HttpClientBase implements HttpResponseCode, java.io
         HttpURLConnection con;
         if (isProxyConfigured()) {
             if (CONF.getHttpProxyUser() != null && !CONF.getHttpProxyUser().equals("")) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Proxy AuthUser: " + CONF.getHttpProxyUser());
-                    logger.debug("Proxy AuthPassword: " + CONF.getHttpProxyPassword().replaceAll(".", "*"));
-                }
+
                 Authenticator.setDefault(new Authenticator() {
                     @Override
                     protected PasswordAuthentication
@@ -243,9 +220,7 @@ class HttpClientImpl extends HttpClientBase implements HttpResponseCode, java.io
             }
             final Proxy proxy = new Proxy(Proxy.Type.HTTP, InetSocketAddress
                     .createUnresolved(CONF.getHttpProxyHost(), CONF.getHttpProxyPort()));
-            if (logger.isDebugEnabled()) {
-                logger.debug("Opening proxied connection(" + CONF.getHttpProxyHost() + ":" + CONF.getHttpProxyPort() + ")");
-            }
+
             con = (HttpURLConnection) new URL(url).openConnection(proxy);
         } else {
             con = (HttpURLConnection) new URL(url).openConnection();

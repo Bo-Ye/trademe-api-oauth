@@ -27,13 +27,12 @@ import java.io.ObjectInputStream;
  *
  * @author Yusuke Yamamoto - yusuke at mac.com
  */
-abstract class TwitterBaseImpl implements TwitterBase, java.io.Serializable, OAuthSupport,  HttpResponseListener {
+abstract class TwitterBaseImpl implements TwitterBase,  OAuthSupport,  HttpResponseListener {
     private static final String WWW_DETAILS = "See http://twitter4j.org/en/configuration.html for details. See and register at http://apps.twitter.com/";
-    private static final long serialVersionUID = -7824361938865528554L;
+
 
     Configuration conf;
-    private transient String screenName = null;
-    private transient long id = 0;
+
 
     transient HttpClient http;
 
@@ -55,18 +54,11 @@ abstract class TwitterBaseImpl implements TwitterBase, java.io.Serializable, OAu
             String consumerSecret = conf.getOAuthConsumerSecret();
             // try to find oauth tokens in the configuration
             if (consumerKey != null && consumerSecret != null) {
-                if (conf.isApplicationOnlyAuthEnabled()) {
 
-
-                } else {
                     OAuthAuthorization oauth = new OAuthAuthorization(conf);
-                    String accessToken = conf.getOAuthAccessToken();
-                    String accessTokenSecret = conf.getOAuthAccessTokenSecret();
-                    if (accessToken != null && accessTokenSecret != null) {
-                        oauth.setOAuthAccessToken(new AccessToken(accessToken, accessTokenSecret));
-                    }
+
                     this.auth = oauth;
-                }
+
             }
         }
         http = HttpClientFactory.getInstance(conf.getHttpClientConfiguration());
@@ -202,8 +194,7 @@ abstract class TwitterBaseImpl implements TwitterBase, java.io.Serializable, OAu
                 oauthAccessToken = getOAuth().getOAuthAccessToken();
             }
 
-        screenName = oauthAccessToken.getScreenName();
-        id = oauthAccessToken.getUserId();
+
         return oauthAccessToken;
     }
 
@@ -211,7 +202,7 @@ abstract class TwitterBaseImpl implements TwitterBase, java.io.Serializable, OAu
     @Override
     public synchronized AccessToken getOAuthAccessToken(String oauthVerifier) throws TwitterException {
         AccessToken oauthAccessToken = getOAuth().getOAuthAccessToken(oauthVerifier);
-        screenName = oauthAccessToken.getScreenName();
+
         return oauthAccessToken;
     }
 
@@ -219,7 +210,7 @@ abstract class TwitterBaseImpl implements TwitterBase, java.io.Serializable, OAu
     public synchronized AccessToken getOAuthAccessToken(RequestToken requestToken) throws TwitterException {
         OAuthSupport oauth = getOAuth();
         AccessToken oauthAccessToken = oauth.getOAuthAccessToken(requestToken);
-        screenName = oauthAccessToken.getScreenName();
+
         return oauthAccessToken;
     }
 

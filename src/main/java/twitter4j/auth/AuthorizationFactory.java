@@ -36,20 +36,13 @@ public final class AuthorizationFactory {
         String consumerSecret = conf.getOAuthConsumerSecret();
 
         if (consumerKey != null && consumerSecret != null) {
-            if (conf.isApplicationOnlyAuthEnabled()) {
 
-
-            } else {
                 OAuthAuthorization oauth;
                 oauth = new OAuthAuthorization(conf);
-                String accessToken = conf.getOAuthAccessToken();
-                String accessTokenSecret = conf.getOAuthAccessTokenSecret();
-                if (accessToken != null && accessTokenSecret != null) {
-                    oauth.setOAuthAccessToken(new AccessToken(accessToken, accessTokenSecret));
-                }
+
                 auth = oauth;
             }
-        }
+
 
         return auth;
     }

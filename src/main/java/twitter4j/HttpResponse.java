@@ -28,7 +28,7 @@ import java.util.Map;
  * @author Yusuke Yamamoto - yusuke at mac.com
  */
 public abstract class HttpResponse {
-    private static final Logger logger = Logger.getLogger(HttpResponseImpl.class);
+
     protected final HttpClientConfiguration CONF;
 
     HttpResponse() {
@@ -92,7 +92,7 @@ public abstract class HttpResponse {
                     buf.append(line).append("\n");
                 }
                 this.responseAsString = buf.toString();
-                logger.debug(responseAsString);
+
                 stream.close();
                 streamConsumed = true;
             } catch (IOException ioe) {
@@ -135,12 +135,7 @@ public abstract class HttpResponse {
                 } else {
                     json = new JSONObject(responseAsString);
                 }
-                if (CONF.isPrettyDebugEnabled()) {
-                    logger.debug(json.toString(1));
-                } else {
-                    logger.debug(responseAsString != null ? responseAsString :
-                        json.toString());
-                }
+
             } catch (JSONException jsone) {
                 if (responseAsString == null) {
                     throw new TwitterException(jsone.getMessage(), jsone);
@@ -179,18 +174,11 @@ public abstract class HttpResponse {
                 } else {
                     jsonArray = new JSONArray(responseAsString);
                 }
-                if (CONF.isPrettyDebugEnabled()) {
-                    logger.debug(jsonArray.toString(1));
-                } else {
-                    logger.debug(responseAsString != null ? responseAsString :
-                        jsonArray.toString());
-                }
+
             } catch (JSONException jsone) {
-                if (logger.isDebugEnabled()) {
-                    throw new TwitterException(jsone.getMessage() + ":" + this.responseAsString, jsone);
-                } else {
+
                     throw new TwitterException(jsone.getMessage(), jsone);
-                }
+
             } finally {
                 if (reader != null) {
                     try {
@@ -221,13 +209,5 @@ public abstract class HttpResponse {
 
     public abstract void disconnect() throws IOException;
 
-    @Override
-    public String toString() {
-        return "HttpResponse{" +
-            "statusCode=" + statusCode +
-            ", responseAsString='" + responseAsString + '\'' +
-            ", is=" + is +
-            ", streamConsumed=" + streamConsumed +
-            '}';
-    }
+
 }

@@ -4,13 +4,11 @@ import twitter4j.auth.Authorization;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class HttpClientBase implements HttpClient, Serializable {
-    private static final Logger logger = Logger.getLogger(HttpClientBase.class);
-    private static final long serialVersionUID = -8016974810651763053L;
+public abstract class HttpClientBase implements HttpClient{
+
     protected final HttpClientConfiguration CONF;
 
     private final Map<String, String> requestHeaders;
@@ -33,7 +31,7 @@ public abstract class HttpClientBase implements HttpClient, Serializable {
 
     public void write(DataOutputStream out, String outStr) throws IOException {
         out.writeBytes(outStr);
-        logger.debug(outStr);
+
     }
 
     @Override
