@@ -113,13 +113,7 @@ public class TwitterException extends Exception implements TwitterResponse, Http
         return value;
     }
 
-    @Override
-    public RateLimitStatus getRateLimitStatus() {
-        if (null == response) {
-            return null;
-        }
-        return JSONImplFactory.createRateLimitStatusFromResponseHeader(response);
-    }
+
 
     @Override
     public int getAccessLevel() {
@@ -142,10 +136,8 @@ public class TwitterException extends Exception implements TwitterResponse, Http
     public int getRetryAfter() {
         int retryAfter = -1;
         if (this.statusCode == 400) {
-            RateLimitStatus rateLimitStatus = getRateLimitStatus();
-            if (rateLimitStatus != null) {
-                retryAfter = rateLimitStatus.getSecondsUntilReset();
-            }
+
+
         } else if (this.statusCode == ENHANCE_YOUR_CLAIM) {
             try {
                 String retryAfterStr = response.getResponseHeader("Retry-After");
@@ -176,7 +168,7 @@ public class TwitterException extends Exception implements TwitterResponse, Http
      * @since Twitter4J 2.1.2
      */
     public boolean exceededRateLimitation() {
-        return (statusCode == 400 && getRateLimitStatus() != null) // REST API
+        return (statusCode == 400 ) // REST API
                 || (statusCode == ENHANCE_YOUR_CLAIM) // Streaming API
                 || (statusCode == TOO_MANY_REQUESTS); // API 1.1
     }
@@ -279,7 +271,7 @@ public class TwitterException extends Exception implements TwitterResponse, Http
                 ", message=" + errorMessage +
                 ", code=" + errorCode +
                 ", retryAfter=" + getRetryAfter() +
-                ", rateLimitStatus=" + getRateLimitStatus() +
+                ", rateLimitStatus=" +
                 ", version=" + Version.getVersion() +
                 '}';
     }
@@ -312,7 +304,7 @@ public class TwitterException extends Exception implements TwitterResponse, Http
                         " Follow userid cannot be read.";
                 break;
             case ENHANCE_YOUR_CLAIM:
-                cause = "Returned by the Search and Trends API when you are being rate limited (https://dev.twitter.com/docs/rate-limiting).\n"
+                cause = "Returned by the Search and  API when you are being rate limited (https://dev.twitter.com/docs/rate-limiting).\n"
                         + "Returned by the Streaming API:\n Too many login attempts in a short period of time.\n" +
                         " Running too many copies of the same application authenticating with the same account name.";
                 break;

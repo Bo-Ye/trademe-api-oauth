@@ -117,14 +117,7 @@ public interface User extends Comparable<User>, TwitterResponse, java.io.Seriali
      */
     int getFollowersCount();
 
-    /**
-     * Returns the current status of the user<br>
-     * This can be null if the instance if from Status.getUser().
-     *
-     * @return current status of the user
-     * @since Twitter4J 2.1.1
-     */
-    Status getStatus();
+
 
     String getProfileBackgroundColor();
 

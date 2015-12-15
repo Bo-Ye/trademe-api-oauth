@@ -16,8 +16,6 @@
 
 package twitter4j;
 
-import java.util.List;
-
 /**
  * A data interface representing search API response
  *
@@ -36,7 +34,7 @@ public interface QueryResult extends TwitterResponse, java.io.Serializable {
 
     String getQuery();
 
-    List<Status> getTweets();
+
 
     /**
      * Returns a Query instance to fetch next page or null if there is no next page.

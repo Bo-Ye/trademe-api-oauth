@@ -25,8 +25,6 @@ import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import static twitter4j.HttpResponseCode.*;
-
 /**
  * Base class of Twitter / AsyncTwitter / TwitterStream supports OAuth.
  *
@@ -83,54 +81,16 @@ abstract class TwitterBaseImpl implements TwitterBase, java.io.Serializable, OAu
             }
         }
         http = HttpClientFactory.getInstance(conf.getHttpClientConfiguration());
-        setFactory();
+
     }
 
-    void setFactory() {
-        factory = new JSONImplFactory(conf);
-    }
 
-    @Override
-    public String getScreenName() throws TwitterException, IllegalStateException {
-        if (!auth.isEnabled()) {
-            throw new IllegalStateException(
-                    "Neither user ID/password combination nor OAuth consumer key/secret combination supplied");
-        }
-        if (null == screenName) {
-            if (auth instanceof BasicAuthorization) {
-                screenName = ((BasicAuthorization) auth).getUserId();
-                if (screenName.contains("@")) {
-                    screenName = null;
-                }
-            }
-            if (null == screenName) {
-                // retrieve the screen name if this instance is authenticated with OAuth or email address
-                fillInIDAndScreenName();
-            }
-        }
-        return screenName;
-    }
 
-    @Override
-    public long getId() throws TwitterException, IllegalStateException {
-        if (!auth.isEnabled()) {
-            throw new IllegalStateException(
-                    "Neither user ID/password combination nor OAuth consumer key/secret combination supplied");
-        }
-        if (0 == id) {
-            fillInIDAndScreenName();
-        }
-        // retrieve the screen name if this instance is authenticated with OAuth or email address
-        return id;
-    }
 
-    User fillInIDAndScreenName() throws TwitterException {
-        ensureAuthorizationEnabled();
-        User user = new UserJSONImpl(http.get(conf.getRestBaseURL() + "account/verify_credentials.json", null, auth, this), conf);
-        this.screenName = user.getScreenName();
-        this.id = user.getId();
-        return user;
-    }
+
+
+
+
 
     @Override
     public void addRateLimitStatusListener(RateLimitStatusListener listener) {
@@ -173,30 +133,12 @@ abstract class TwitterBaseImpl implements TwitterBase, java.io.Serializable, OAu
             RateLimitStatus rateLimitStatus;
             int statusCode;
             if (te != null) {
-                rateLimitStatus = te.getRateLimitStatus();
                 statusCode = te.getStatusCode();
             } else {
-                rateLimitStatus = JSONImplFactory.createRateLimitStatusFromResponseHeader(res);
+
                 statusCode = res.getStatusCode();
             }
-            if (rateLimitStatus != null) {
-                RateLimitStatusEvent statusEvent
-                        = new RateLimitStatusEvent(this, rateLimitStatus, event.isAuthenticated());
-                if (statusCode == ENHANCE_YOUR_CLAIM
-                        || statusCode == SERVICE_UNAVAILABLE
-                        || statusCode == TOO_MANY_REQUESTS) {
-                    // EXCEEDED_RATE_LIMIT_QUOTA is returned by Rest API
-                    // SERVICE_UNAVAILABLE is returned by Search API
-                    for (RateLimitStatusListener listener : rateLimitStatusListeners) {
-                        listener.onRateLimitStatus(statusEvent);
-                        listener.onRateLimitReached(statusEvent);
-                    }
-                } else {
-                    for (RateLimitStatusListener listener : rateLimitStatusListeners) {
-                        listener.onRateLimitStatus(statusEvent);
-                    }
-                }
-            }
+
         }
     }
 
@@ -249,7 +191,7 @@ abstract class TwitterBaseImpl implements TwitterBase, java.io.Serializable, OAu
         auth = (Authorization) stream.readObject();
         rateLimitStatusListeners = (List<RateLimitStatusListener>) stream.readObject();
         http = HttpClientFactory.getInstance(conf.getHttpClientConfiguration());
-        setFactory();
+
     }
 
 
@@ -273,11 +215,7 @@ abstract class TwitterBaseImpl implements TwitterBase, java.io.Serializable, OAu
                 oauth.setOAuthConsumer(consumerKey, consumerSecret);
                 auth = oauth;
             }
-        } else if (auth instanceof BasicAuthorization) {
-            XAuthAuthorization xauth = new XAuthAuthorization((BasicAuthorization) auth);
-            xauth.setOAuthConsumer(consumerKey, consumerSecret);
-            auth = xauth;
-        } else if (auth instanceof OAuthAuthorization || auth instanceof OAuth2Authorization) {
+        }  else if (auth instanceof OAuthAuthorization || auth instanceof OAuth2Authorization) {
             throw new IllegalStateException("consumer key/secret pair already set.");
         }
     }
@@ -315,17 +253,7 @@ abstract class TwitterBaseImpl implements TwitterBase, java.io.Serializable, OAu
     public synchronized AccessToken getOAuthAccessToken() throws TwitterException {
         Authorization auth = getAuthorization();
         AccessToken oauthAccessToken;
-        if (auth instanceof BasicAuthorization) {
-            BasicAuthorization basicAuth = (BasicAuthorization) auth;
-            auth = AuthorizationFactory.getInstance(conf);
-            if (auth instanceof OAuthAuthorization) {
-                this.auth = auth;
-                OAuthAuthorization oauthAuth = (OAuthAuthorization) auth;
-                oauthAccessToken = oauthAuth.getOAuthAccessToken(basicAuth.getUserId(), basicAuth.getPassword());
-            } else {
-                throw new IllegalStateException("consumer key / secret combination not supplied.");
-            }
-        } else {
+
             if (auth instanceof XAuthAuthorization) {
                 XAuthAuthorization xauth = (XAuthAuthorization) auth;
                 this.auth = xauth;
@@ -335,7 +263,7 @@ abstract class TwitterBaseImpl implements TwitterBase, java.io.Serializable, OAu
             } else {
                 oauthAccessToken = getOAuth().getOAuthAccessToken();
             }
-        }
+
         screenName = oauthAccessToken.getScreenName();
         id = oauthAccessToken.getUserId();
         return oauthAccessToken;

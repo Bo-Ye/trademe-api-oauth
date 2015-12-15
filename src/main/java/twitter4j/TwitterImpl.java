@@ -24,7 +24,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -111,18 +110,7 @@ class TwitterImpl extends TwitterBaseImpl implements Twitter {
     }
 
 
-    private UserList updateUserList(String newListName, boolean isPublicList, String newDescription, HttpParameter... params) throws TwitterException {
-        List<HttpParameter> httpParams = new ArrayList<HttpParameter>();
-        Collections.addAll(httpParams, params);
-        if (newListName != null) {
-            httpParams.add(new HttpParameter("name", newListName));
-        }
-        httpParams.add(new HttpParameter("mode", isPublicList ? "public" : "private"));
-        if (newDescription != null) {
-            httpParams.add(new HttpParameter("description", newDescription));
-        }
-        return factory.createAUserList(post(conf.getRestBaseURL() + "lists/update.json", httpParams.toArray(new HttpParameter[httpParams.size()])));
-    }
+
 
 
     public Map<String, RateLimitStatus> getRateLimitStatus() throws TwitterException {

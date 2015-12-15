@@ -48,10 +48,7 @@ class ResponseListImpl<T> extends ArrayList<T> implements ResponseList<T> {
         accessLevel = ParseUtil.toAccessLevel(res);
     }
 
-    @Override
-    public RateLimitStatus getRateLimitStatus() {
-        return rateLimitStatus;
-    }
+
 
     @Override
     public int getAccessLevel() {
