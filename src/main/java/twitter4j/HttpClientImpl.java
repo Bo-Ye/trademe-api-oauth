@@ -188,7 +188,7 @@ class HttpClientImpl extends HttpClientBase implements HttpResponseCode {
 
         String authorizationHeader;
         if (req.getAuthorization() != null && (authorizationHeader = req.getAuthorization().getAuthorizationHeader(req)) != null) {
-
+        	System.out.println("header 2: "+authorizationHeader );
             connection.addRequestProperty("Authorization", authorizationHeader);
         }
         if (req.getRequestHeaders() != null) {

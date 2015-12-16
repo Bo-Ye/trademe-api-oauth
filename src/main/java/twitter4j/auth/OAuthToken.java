@@ -21,7 +21,7 @@ import twitter4j.TwitterException;
 
 import javax.crypto.spec.SecretKeySpec;
 
-abstract class OAuthToken implements java.io.Serializable {
+public abstract class OAuthToken implements java.io.Serializable {
 
     private static final long serialVersionUID = -7841506492508140600L;
     private final String token;
@@ -57,11 +57,11 @@ abstract class OAuthToken implements java.io.Serializable {
         return tokenSecret;
     }
 
-    /*package*/ void setSecretKeySpec(SecretKeySpec secretKeySpec) {
+   public void setSecretKeySpec(SecretKeySpec secretKeySpec) {
         this.secretKeySpec = secretKeySpec;
     }
 
-    /*package*/ SecretKeySpec getSecretKeySpec() {
+    public SecretKeySpec getSecretKeySpec() {
         return secretKeySpec;
     }
 
