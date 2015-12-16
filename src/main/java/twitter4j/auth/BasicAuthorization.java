@@ -24,9 +24,7 @@ import twitter4j.HttpRequest;
  *
  * @author Yusuke Yamamoto - yusuke at mac.com
  */
-public class BasicAuthorization implements Authorization, java.io.Serializable {
-
-    private static final long serialVersionUID = 7420629998989177351L;
+public class BasicAuthorization implements Authorization {
     private final String userId;
 
     private final String password;

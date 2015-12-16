@@ -170,10 +170,7 @@ class ConfigurationBase implements Configuration {
         this.oAuthConsumerSecret = oAuthConsumerSecret;
     }
 
-    @Override
-    public String getOAuthAccessToken() {
-        return oAuthAccessToken;
-    }
+
 
     protected final void setOAuthAccessToken(String oAuthAccessToken) {
         this.oAuthAccessToken = oAuthAccessToken;

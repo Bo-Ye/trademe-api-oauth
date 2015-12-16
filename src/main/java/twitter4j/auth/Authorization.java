@@ -23,7 +23,7 @@ import twitter4j.HttpRequest;
  *
  * @author Yusuke Yamamoto - yusuke at mac.com
  */
-public interface Authorization extends java.io.Serializable {
+public interface Authorization {
     String getAuthorizationHeader(HttpRequest req);
 
     /**

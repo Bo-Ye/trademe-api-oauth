@@ -30,7 +30,6 @@ public interface AuthorizationConfiguration {
 
     String getOAuthConsumerSecret();
 
-    String getOAuthAccessToken();
 
 
 }
