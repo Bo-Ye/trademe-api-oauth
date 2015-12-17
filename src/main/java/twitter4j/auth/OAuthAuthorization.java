@@ -16,6 +16,7 @@
 
 package twitter4j.auth;
 
+import com.boye.trademe.NewTrademeTemplate;
 import twitter4j.*;
 import twitter4j.conf.Configuration;
 
@@ -203,9 +204,9 @@ public class OAuthAuthorization implements Authorization, OAuthSupport {
                 .append(HttpParameter.encode(constructRequestURL(url))).append("&");
         base.append(HttpParameter.encode(normalizeRequestParameters(signatureBaseParams)));
         String oauthBaseString = base.toString();
-
+        System.out.println("In twitter base string: "+oauthBaseString);
         String signature = generateSignature(oauthBaseString, otoken);
-
+        System.out.println("In twitter signature: "+ signature);
 
         oauthHeaderParams.add(new HttpParameter("oauth_signature", signature));
 
@@ -213,7 +214,9 @@ public class OAuthAuthorization implements Authorization, OAuthSupport {
         if (realm != null) {
             oauthHeaderParams.add(new HttpParameter("realm", realm));
         }
-        return "OAuth " + encodeParameters(oauthHeaderParams, ",", true);
+        String result =  "OAuth " + encodeParameters(oauthHeaderParams, ",", true);
+        System.out.println("In twitter the generated auth header: " + result);
+        return result;
     }
 
     private void parseGetParameters(String url, List<HttpParameter> signatureBaseParams) {
@@ -253,6 +256,7 @@ public class OAuthAuthorization implements Authorization, OAuthSupport {
     /*package*/ String generateAuthorizationHeader(String method, String url, HttpParameter[] params, OAuthToken token) {
         long timestamp = System.currentTimeMillis() / 1000;
         long nonce = timestamp + RAND.nextInt();
+        NewTrademeTemplate.getInstance().generateAuthorizationHeader(method, url, params, String.valueOf(nonce), String.valueOf(timestamp), token);
         return generateAuthorizationHeader(method, url, params, String.valueOf(nonce), String.valueOf(timestamp), token);
     }
 
@@ -301,11 +305,13 @@ public class OAuthAuthorization implements Authorization, OAuthSupport {
             SecretKeySpec spec;
             if (null == token) {
                 String oauthSignature = HttpParameter.encode(consumerSecret) + "&";
+                System.out.println("In twitter oauthSignature: "+oauthSignature);
                 spec = new SecretKeySpec(oauthSignature.getBytes(), HMAC_SHA1);
             } else {
                 spec = token.getSecretKeySpec();
                 if (null == spec) {
                     String oauthSignature = HttpParameter.encode(consumerSecret) + "&" + HttpParameter.encode(token.getTokenSecret());
+                    System.out.println("In twitter oauthSignature: "+oauthSignature);
                     spec = new SecretKeySpec(oauthSignature.getBytes(), HMAC_SHA1);
                     token.setSecretKeySpec(spec);
                 }
