@@ -3,6 +3,7 @@ package com.boye.trademe;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -264,6 +265,7 @@ public class NewTrademeTemplate {
             String[] responseStr = result.split("&");
             this.token = getParameter(responseStr, "oauth_token");
             this.tokenSecret = getParameter(responseStr, "oauth_token_secret");
+            this.secretKeySpec = null;
         }
     }
 
@@ -274,8 +276,16 @@ public class NewTrademeTemplate {
      * @return
      * @throws TwitterException
      */
-    public String call(String url) throws TwitterException {
-        //return twitter.get(url).asString();
-        return null;
+    public String call(String url) throws Exception {
+        String authorizationHeader = this.generateAuthorizationHeader("GET", url, null, this.token, this.tokenSecret, this.secretKeySpec);
+        CloseableHttpClient httpclient = HttpClients.createDefault();
+        HttpGet httpGet = new HttpGet(url);
+        httpGet.addHeader("Authorization", authorizationHeader);
+        try (CloseableHttpResponse response = httpclient.execute(httpGet)) {
+            HttpEntity entity = response.getEntity();
+            String result = EntityUtils.toString(entity);
+            System.out.println("url result: " + result);
+            return result;
+        }
     }
 }

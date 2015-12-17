@@ -21,7 +21,7 @@ public class WatchListCallback extends HttpServlet {
 			System.out.println("oauth_verifier: " + oauthVerifier);
 			authorization.setUpAccessToken(oauthVerifier);
 			String result = authorization.call(WATCH_LIST_URL);
-			response.setContentType("text/html");
+			response.setContentType("application/xml");
 			PrintWriter out = response.getWriter();
 			out.println(result);
 		} catch (Exception e) {

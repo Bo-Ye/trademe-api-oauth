@@ -16,6 +16,7 @@
 
 package twitter4j.auth;
 
+import com.boye.trademe.NewTrademeTemplate;
 import twitter4j.*;
 import twitter4j.conf.Configuration;
 
@@ -255,7 +256,10 @@ public class OAuthAuthorization implements Authorization, OAuthSupport {
     /*package*/ String generateAuthorizationHeader(String method, String url, HttpParameter[] params, OAuthToken token) {
         long timestamp = System.currentTimeMillis() / 1000;
         long nonce = timestamp + RAND.nextInt();
-        //NewTrademeTemplate.getInstance().generateAuthorizationHeader(method, url, params, String.valueOf(nonce), String.valueOf(timestamp), token);
+        System.out.println("method: "+method);
+        System.out.println("url: "+url);
+        System.out.println("params: "+params);
+        NewTrademeTemplate.getInstance().generateAuthorizationHeader(method, url, params, String.valueOf(nonce), String.valueOf(timestamp), token==null?null:token.getToken(), token==null?null:token.getTokenSecret(), token==null?null:token.getSecretKeySpec());
         return generateAuthorizationHeader(method, url, params, String.valueOf(nonce), String.valueOf(timestamp), token);
     }
 
