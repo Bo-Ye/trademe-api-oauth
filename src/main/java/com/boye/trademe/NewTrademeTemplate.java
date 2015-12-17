@@ -11,7 +11,6 @@ import org.apache.http.util.EntityUtils;
 import twitter4j.BASE64Encoder;
 import twitter4j.HttpParameter;
 import twitter4j.TwitterException;
-import twitter4j.auth.OAuthToken;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -51,6 +50,10 @@ public class NewTrademeTemplate {
         }
         return instance;
     }
+
+    private  String token;
+    private  String tokenSecret;
+    private  SecretKeySpec secretKeySpec;
 
     //help methods
     private List<HttpParameter> toParamList(HttpParameter[] params) {
@@ -131,28 +134,29 @@ public class NewTrademeTemplate {
         }
     }
 
-    private String generateSignature(String data, OAuthToken token) throws NoSuchAlgorithmException, InvalidKeyException {
+    private String generateSignature(String data, String token, String tokenSecret, SecretKeySpec secretKeySpec) throws NoSuchAlgorithmException, InvalidKeyException {
         byte[] byteHMAC = null;
         Mac mac = Mac.getInstance(HMAC_SHA1);
         SecretKeySpec spec;
         if (null == token) {
             String oauthSignature = HttpParameter.encode(OAUTH_COSUMER_SECRET) + "&";
-            System.out.println("In new oauthSignature: "+oauthSignature);
+            System.out.println("In new oauthSignature: " + oauthSignature);
             spec = new SecretKeySpec(oauthSignature.getBytes(), HMAC_SHA1);
         } else {
-            spec = token.getSecretKeySpec();
+            spec = secretKeySpec;
             if (null == spec) {
-                String oauthSignature = HttpParameter.encode(OAUTH_COSUMER_SECRET) + "&" + HttpParameter.encode(token.getTokenSecret());
-                System.out.println("In new oauthSignature: "+oauthSignature);
+                String oauthSignature = HttpParameter.encode(OAUTH_COSUMER_SECRET) + "&" + HttpParameter.encode(tokenSecret);
+                System.out.println("In new oauthSignature: " + oauthSignature);
                 spec = new SecretKeySpec(oauthSignature.getBytes(), HMAC_SHA1);
-                token.setSecretKeySpec(spec);
+                this.secretKeySpec = spec;
             }
         }
         mac.init(spec);
         byteHMAC = mac.doFinal(data.getBytes());
         return BASE64Encoder.encode(byteHMAC);
     }
-    public String generateAuthorizationHeader(String method, String url, HttpParameter[] params, String nonce, String timestamp, OAuthToken otoken)  {
+
+    public String generateAuthorizationHeader(String method, String url, HttpParameter[] params, String nonce, String timestamp, String token, String tokenSecret, SecretKeySpec secretKeySpec) {
         try {
             if (null == params) {
                 params = new HttpParameter[0];
@@ -163,8 +167,8 @@ public class NewTrademeTemplate {
             oauthHeaderParams.add(new HttpParameter("oauth_timestamp", timestamp));
             oauthHeaderParams.add(new HttpParameter("oauth_nonce", nonce));
             oauthHeaderParams.add(new HttpParameter("oauth_version", "1.0"));
-            if (otoken != null) {
-                oauthHeaderParams.add(new HttpParameter("oauth_token", otoken.getToken()));
+            if (token != null) {
+                oauthHeaderParams.add(new HttpParameter("oauth_token", token));
             }
             List<HttpParameter> signatureBaseParams = new ArrayList<HttpParameter>(oauthHeaderParams.size() + params.length);
             signatureBaseParams.addAll(oauthHeaderParams);
@@ -175,23 +179,34 @@ public class NewTrademeTemplate {
             StringBuilder base = new StringBuilder(method).append("&").append(HttpParameter.encode(constructRequestURL(url))).append("&");
             base.append(HttpParameter.encode(normalizeRequestParameters(signatureBaseParams)));
             String oauthBaseString = base.toString();
-            System.out.println("In new the base string: "+oauthBaseString);
-            String signature = generateSignature(oauthBaseString, otoken);
-            System.out.println("In new the signature: "+signature);
+            System.out.println("In new the base string: " + oauthBaseString);
+            String signature = generateSignature(oauthBaseString, token, tokenSecret, secretKeySpec);
+            System.out.println("In new the signature: " + signature);
             oauthHeaderParams.add(new HttpParameter("oauth_signature", signature));
             String result = "OAuth " + encodeParameters(oauthHeaderParams, ",", true);
             System.out.println("In new the generated auth header: " + result);
             return result;
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return "";
     }
 
-    private String generateAuthorizationHeader(String method, String url, HttpParameter[] params, OAuthToken otoken) throws UnsupportedEncodingException, InvalidKeyException, NoSuchAlgorithmException {
+    private String generateAuthorizationHeader(String method, String url, HttpParameter[] params, String token, String tokenSecret, SecretKeySpec secretKeySpec) throws UnsupportedEncodingException, InvalidKeyException, NoSuchAlgorithmException {
         long timestamp = System.currentTimeMillis() / 1000;
         long nonce = timestamp + RAND.nextInt();
-        return this.generateAuthorizationHeader(method, url, params,  String.valueOf(nonce), String.valueOf(timestamp), otoken );
+        return this.generateAuthorizationHeader(method, url, params, String.valueOf(nonce), String.valueOf(timestamp), token, tokenSecret, secretKeySpec);
+    }
+
+    private String getParameter(String[] responseStr, String parameter) {
+        String value = null;
+        for (String str : responseStr) {
+            if (str.startsWith(parameter + '=')) {
+                value = str.split("=")[1].trim();
+                break;
+            }
+        }
+        return value;
     }
 
     /**
@@ -202,24 +217,25 @@ public class NewTrademeTemplate {
      * @throws IOException
      * @throws ClientProtocolException
      */
-    public String getAuthorizationURL() throws TwitterException, ClientProtocolException, IOException, NoSuchAlgorithmException, InvalidKeyException {
+    public String getAuthorizationURL() throws Exception {
         List<HttpParameter> params = new ArrayList<HttpParameter>();
         params.add(new HttpParameter("oauth_callback", CALLBACK_URL));
         HttpParameter[] parameters = params.toArray(new HttpParameter[params.size()]);
-        String authorizationHeader = this.generateAuthorizationHeader("POST", OAUTH_REQUEST_TOKEN_URL, parameters, null);
+        String authorizationHeader = this.generateAuthorizationHeader("POST", OAUTH_REQUEST_TOKEN_URL, parameters, null,null, null);
         CloseableHttpClient httpclient = HttpClients.createDefault();
         HttpPost httpPost = new HttpPost(OAUTH_REQUEST_TOKEN_URL);
         httpPost.addHeader("Authorization", authorizationHeader);
         httpPost.addHeader("Content-Type", "application/x-www-form-urlencoded");
-        String postParams = HttpParameter.encodeParameters(parameters);
-        //httpPost.setEntity(new UrlEncodedFormEntity(postParams));
-        //byte[] bytes = postParams.getBytes("UTF-8");
-        httpPost.setEntity(new StringEntity(postParams));
+        String body = HttpParameter.encodeParameters(parameters);
+        httpPost.setEntity(new StringEntity(body));
         try (CloseableHttpResponse response = httpclient.execute(httpPost)) {
             HttpEntity entity = response.getEntity();
             String result = EntityUtils.toString(entity);
-            System.out.println("result: " + result);
-            return result;
+            System.out.println("request token string: " + result);
+            String[] responseStr = result.split("&");
+            this.token = getParameter(responseStr, "oauth_token");
+            this.tokenSecret = getParameter(responseStr, "oauth_token_secret");
+            return OAUTH_AUTHORIZATION_URL + "?oauth_token=" + token;
         }
     }
 
@@ -230,10 +246,25 @@ public class NewTrademeTemplate {
      * @return
      * @throws TwitterException
      */
-    public void setUpAccessToken(String oauthVerifier) throws TwitterException {
-        //AccessToken accessToken = twitter.getOAuthAccessToken(oauthVerifier);
-        //System.out.println("step 3, access token: " + accessToken.getToken());
-        //twitter.setOAuthAccessToken(accessToken);
+    public void setUpAccessToken(String oauthVerifier) throws Exception {
+        List<HttpParameter> params = new ArrayList<HttpParameter>();
+        params.add(new HttpParameter("oauth_verifier", oauthVerifier));
+        HttpParameter[] parameters = params.toArray(new HttpParameter[params.size()]);
+        String authorizationHeader = this.generateAuthorizationHeader("POST", OAUTH_ACCESS_TOKEN_URL, parameters, this.token, this.tokenSecret, this.secretKeySpec);
+        CloseableHttpClient httpclient = HttpClients.createDefault();
+        HttpPost httpPost = new HttpPost(OAUTH_ACCESS_TOKEN_URL);
+        httpPost.addHeader("Authorization", authorizationHeader);
+        httpPost.addHeader("Content-Type", "application/x-www-form-urlencoded");
+        String body = HttpParameter.encodeParameters(parameters);
+        httpPost.setEntity(new StringEntity(body));
+        try (CloseableHttpResponse response = httpclient.execute(httpPost)) {
+            HttpEntity entity = response.getEntity();
+            String result = EntityUtils.toString(entity);
+            System.out.println("access token result: " + result);
+            String[] responseStr = result.split("&");
+            this.token = getParameter(responseStr, "oauth_token");
+            this.tokenSecret = getParameter(responseStr, "oauth_token_secret");
+        }
     }
 
     /**
