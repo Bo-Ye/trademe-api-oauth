@@ -8,17 +8,17 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 public class WatchList extends HttpServlet {
-	private static final long serialVersionUID = 1L;
-	private TrademeTemplate2 authorization = TrademeTemplate2.getInstance();
+    private static final long serialVersionUID = 1L;
+    private TrademeTemplate authorization = TrademeTemplate.getInstance();
 
-	/**
-	 * Step 2: redirect to authorization URL
-	 */
-	public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		try {
-			response.sendRedirect(authorization.getAuthorizationURL()); // trade me login page
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+    /**
+     * Step 2: redirect to authorization URL
+     */
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        try {
+            response.sendRedirect(authorization.getAuthorizationURL()); // trade me login page
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
