@@ -25,7 +25,7 @@ import java.util.*;
 /**
  * Created by boy on 11/12/15.
  */
-public class NewTrademeTemplate {
+public class TrademeTemplate2 {
     //properties
     private static final String OAUTH_COSUMER_KEY = "";
     private static final String OAUTH_COSUMER_SECRET = "";
@@ -39,22 +39,22 @@ public class NewTrademeTemplate {
     private static final HttpParameter OAUTH_SIGNATURE_METHOD = new HttpParameter("oauth_signature_method", "HMAC-SHA1");
     private static final Random RAND = new Random();
     //singleton
-    private static NewTrademeTemplate instance;
+    private static TrademeTemplate2 instance;
 
-    private NewTrademeTemplate() {
+    private TrademeTemplate2() {
 
     }
 
-    public static synchronized NewTrademeTemplate getInstance() {
+    public static synchronized TrademeTemplate2 getInstance() {
         if (instance == null) {
-            instance = new NewTrademeTemplate();
+            instance = new TrademeTemplate2();
         }
         return instance;
     }
 
     private  String token;
     private  String tokenSecret;
-    private  SecretKeySpec secretKeySpec;
+
 
     //help methods
     private List<HttpParameter> toParamList(HttpParameter[] params) {
@@ -135,7 +135,7 @@ public class NewTrademeTemplate {
         }
     }
 
-    private String generateSignature(String data, String token, String tokenSecret, SecretKeySpec secretKeySpec) throws NoSuchAlgorithmException, InvalidKeyException {
+    private String generateSignature(String data, String token, String tokenSecret) throws NoSuchAlgorithmException, InvalidKeyException {
         byte[] byteHMAC = null;
         Mac mac = Mac.getInstance(HMAC_SHA1);
         SecretKeySpec spec;
@@ -144,20 +144,19 @@ public class NewTrademeTemplate {
             System.out.println("In new oauthSignature: " + oauthSignature);
             spec = new SecretKeySpec(oauthSignature.getBytes(), HMAC_SHA1);
         } else {
-            spec = secretKeySpec;
-            if (null == spec) {
+
                 String oauthSignature = HttpParameter.encode(OAUTH_COSUMER_SECRET) + "&" + HttpParameter.encode(tokenSecret);
                 System.out.println("In new oauthSignature: " + oauthSignature);
                 spec = new SecretKeySpec(oauthSignature.getBytes(), HMAC_SHA1);
-                this.secretKeySpec = spec;
-            }
+
+
         }
         mac.init(spec);
         byteHMAC = mac.doFinal(data.getBytes());
         return BASE64Encoder.encode(byteHMAC);
     }
 
-    public String generateAuthorizationHeader(String method, String url, HttpParameter[] params, String nonce, String timestamp, String token, String tokenSecret, SecretKeySpec secretKeySpec) {
+    public String generateAuthorizationHeader(String method, String url, HttpParameter[] params, String nonce, String timestamp, String token, String tokenSecret) {
         try {
             if (null == params) {
                 params = new HttpParameter[0];
@@ -181,7 +180,7 @@ public class NewTrademeTemplate {
             base.append(HttpParameter.encode(normalizeRequestParameters(signatureBaseParams)));
             String oauthBaseString = base.toString();
             System.out.println("In new the base string: " + oauthBaseString);
-            String signature = generateSignature(oauthBaseString, token, tokenSecret, secretKeySpec);
+            String signature = generateSignature(oauthBaseString, token, tokenSecret);
             System.out.println("In new the signature: " + signature);
             oauthHeaderParams.add(new HttpParameter("oauth_signature", signature));
             String result = "OAuth " + encodeParameters(oauthHeaderParams, ",", true);
@@ -193,10 +192,10 @@ public class NewTrademeTemplate {
         return "";
     }
 
-    private String generateAuthorizationHeader(String method, String url, HttpParameter[] params, String token, String tokenSecret, SecretKeySpec secretKeySpec) throws UnsupportedEncodingException, InvalidKeyException, NoSuchAlgorithmException {
+    private String generateAuthorizationHeader(String method, String url, HttpParameter[] params, String token, String tokenSecret) throws UnsupportedEncodingException, InvalidKeyException, NoSuchAlgorithmException {
         long timestamp = System.currentTimeMillis() / 1000;
         long nonce = timestamp + RAND.nextInt();
-        return this.generateAuthorizationHeader(method, url, params, String.valueOf(nonce), String.valueOf(timestamp), token, tokenSecret, secretKeySpec);
+        return this.generateAuthorizationHeader(method, url, params, String.valueOf(nonce), String.valueOf(timestamp), token, tokenSecret);
     }
 
     private String getParameter(String[] responseStr, String parameter) {
@@ -222,7 +221,7 @@ public class NewTrademeTemplate {
         List<HttpParameter> params = new ArrayList<HttpParameter>();
         params.add(new HttpParameter("oauth_callback", CALLBACK_URL));
         HttpParameter[] parameters = params.toArray(new HttpParameter[params.size()]);
-        String authorizationHeader = this.generateAuthorizationHeader("POST", OAUTH_REQUEST_TOKEN_URL, parameters, null,null, null);
+        String authorizationHeader = this.generateAuthorizationHeader("POST", OAUTH_REQUEST_TOKEN_URL, parameters, null,null);
         CloseableHttpClient httpclient = HttpClients.createDefault();
         HttpPost httpPost = new HttpPost(OAUTH_REQUEST_TOKEN_URL);
         httpPost.addHeader("Authorization", authorizationHeader);
@@ -251,7 +250,7 @@ public class NewTrademeTemplate {
         List<HttpParameter> params = new ArrayList<HttpParameter>();
         params.add(new HttpParameter("oauth_verifier", oauthVerifier));
         HttpParameter[] parameters = params.toArray(new HttpParameter[params.size()]);
-        String authorizationHeader = this.generateAuthorizationHeader("POST", OAUTH_ACCESS_TOKEN_URL, parameters, this.token, this.tokenSecret, this.secretKeySpec);
+        String authorizationHeader = this.generateAuthorizationHeader("POST", OAUTH_ACCESS_TOKEN_URL, parameters, this.token, this.tokenSecret);
         CloseableHttpClient httpclient = HttpClients.createDefault();
         HttpPost httpPost = new HttpPost(OAUTH_ACCESS_TOKEN_URL);
         httpPost.addHeader("Authorization", authorizationHeader);
@@ -265,7 +264,6 @@ public class NewTrademeTemplate {
             String[] responseStr = result.split("&");
             this.token = getParameter(responseStr, "oauth_token");
             this.tokenSecret = getParameter(responseStr, "oauth_token_secret");
-            this.secretKeySpec = null;
         }
     }
 
@@ -277,7 +275,7 @@ public class NewTrademeTemplate {
      * @throws TwitterException
      */
     public String call(String url) throws Exception {
-        String authorizationHeader = this.generateAuthorizationHeader("GET", url, null, this.token, this.tokenSecret, this.secretKeySpec);
+        String authorizationHeader = this.generateAuthorizationHeader("GET", url, null, this.token, this.tokenSecret);
         CloseableHttpClient httpclient = HttpClients.createDefault();
         HttpGet httpGet = new HttpGet(url);
         httpGet.addHeader("Authorization", authorizationHeader);

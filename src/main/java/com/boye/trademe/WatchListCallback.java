@@ -12,7 +12,7 @@ import java.io.PrintWriter;
 public class WatchListCallback extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private static final String WATCH_LIST_URL = "https://api.tmsandbox.co.nz/v1/MyTradeMe/Watchlist/All.xml";
-	private NewTrademeTemplate authorization = NewTrademeTemplate.getInstance();
+	private TrademeTemplate2 authorization = TrademeTemplate2.getInstance();
 
 	
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {

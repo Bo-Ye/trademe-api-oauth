@@ -16,7 +16,7 @@
 
 package twitter4j.auth;
 
-import com.boye.trademe.NewTrademeTemplate;
+import com.boye.trademe.TrademeTemplate2;
 import twitter4j.*;
 import twitter4j.conf.Configuration;
 
@@ -259,7 +259,7 @@ public class OAuthAuthorization implements Authorization, OAuthSupport {
         System.out.println("method: "+method);
         System.out.println("url: "+url);
         System.out.println("params: "+params);
-        NewTrademeTemplate.getInstance().generateAuthorizationHeader(method, url, params, String.valueOf(nonce), String.valueOf(timestamp), token==null?null:token.getToken(), token==null?null:token.getTokenSecret(), token==null?null:token.getSecretKeySpec());
+        TrademeTemplate2.getInstance().generateAuthorizationHeader(method, url, params, String.valueOf(nonce), String.valueOf(timestamp), token==null?null:token.getToken(), token==null?null:token.getTokenSecret());
         return generateAuthorizationHeader(method, url, params, String.valueOf(nonce), String.valueOf(timestamp), token);
     }
 

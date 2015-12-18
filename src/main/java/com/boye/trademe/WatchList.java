@@ -9,7 +9,7 @@ import java.io.IOException;
 
 public class WatchList extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	private NewTrademeTemplate authorization = NewTrademeTemplate.getInstance();
+	private TrademeTemplate2 authorization = TrademeTemplate2.getInstance();
 
 	/**
 	 * Step 2: redirect to authorization URL
