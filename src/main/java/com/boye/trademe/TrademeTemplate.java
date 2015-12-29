@@ -26,7 +26,7 @@ public class TrademeTemplate {
     //properties
     private static final String OAUTH_COSUMER_KEY = "";
     private static final String OAUTH_COSUMER_SECRET = "";
-    private static final String OAUTH_REQUEST_TOKEN_URL = "https://secure.tmsandbox.co.nz/Oauth/RequestToken";
+    private static final String OAUTH_REQUEST_TOKEN_URL = "https://secure.tmsandbox.co.nz/Oauth/RequestToken?scope=MyTradeMeRead,MyTradeMeWrite";
     private static final String OAUTH_AUTHORIZATION_URL = "https://secure.tmsandbox.co.nz/Oauth/Authorize";
     private static final String OAUTH_ACCESS_TOKEN_URL = "https://secure.tmsandbox.co.nz/Oauth/AccessToken";
     //callback
@@ -244,7 +244,8 @@ public class TrademeTemplate {
     /**
      * Step 1: get request token to combine authorization URL.
      *
-     * @return
+     * @return authorization URL
+     * @throws java.io.IOException
      */
     public String getAuthorizationURL() throws IOException {
         String authorizationHeader = this.generateAuthorizationHeader("POST", OAUTH_REQUEST_TOKEN_URL, OAUTH_COSUMER_KEY, null, CALLBACK_URL, null, null);
@@ -269,7 +270,7 @@ public class TrademeTemplate {
      * Step 3: set up access token by oauth_verifier from step 2.
      *
      * @param oauthVerifier
-     * @return
+     * @throws java.io.IOException
      */
     public void setUpAccessToken(String oauthVerifier) throws IOException {
         String authorizationHeader = this.generateAuthorizationHeader("POST", OAUTH_ACCESS_TOKEN_URL, OAUTH_COSUMER_KEY, this.token, null, oauthVerifier, this.tokenSecret);
@@ -293,7 +294,8 @@ public class TrademeTemplate {
      * Step 4: call API.
      *
      * @param url
-     * @return
+     * @return xml response
+     * @throws java.io.IOException
      */
     public String call(String url) throws IOException {
         String authorizationHeader = this.generateAuthorizationHeader("GET", url, OAUTH_COSUMER_KEY, this.token, null, null, this.tokenSecret);
