@@ -12,7 +12,7 @@ public class WatchList extends HttpServlet {
     private TrademeTemplate authorization = TrademeTemplate.getInstance();
 
     /**
-     * Step 2: redirect to authorization URL
+     * Step 4: redirect to authorization URL
      */
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         try {

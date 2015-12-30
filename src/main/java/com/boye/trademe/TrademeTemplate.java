@@ -242,7 +242,7 @@ public class TrademeTemplate {
     }
 
     /**
-     * Step 1: get request token to combine authorization URL.
+     * Step 1,2,3 get request token to combine authorization URL.
      *
      * @return authorization URL
      * @throws java.io.IOException
@@ -267,7 +267,7 @@ public class TrademeTemplate {
     }
 
     /**
-     * Step 3: set up access token by oauth_verifier from step 2.
+     * Step 7: set up access token by oauth_verifier.
      *
      * @param oauthVerifier
      * @throws java.io.IOException
@@ -291,7 +291,7 @@ public class TrademeTemplate {
     }
 
     /**
-     * Step 4: call API.
+     * Step 8: call API.
      *
      * @param url
      * @return xml response
