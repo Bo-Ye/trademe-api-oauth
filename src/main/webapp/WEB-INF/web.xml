@@ -4,22 +4,22 @@
     <display-name>Trade me API OAuth</display-name>
 
     <servlet>
-        <servlet-name>WatchList</servlet-name>
-        <servlet-class>com.boye.trademe.WatchList</servlet-class>
+        <servlet-name>Watchlist</servlet-name>
+        <servlet-class>com.boye.trademe.Watchlist</servlet-class>
     </servlet>
 
     <servlet>
-        <servlet-name>WatchListCallback</servlet-name>
-        <servlet-class>com.boye.trademe.WatchListCallback</servlet-class>
+        <servlet-name>WatchlistCallback</servlet-name>
+        <servlet-class>com.boye.trademe.WatchlistCallback</servlet-class>
     </servlet>
 
     <servlet-mapping>
-        <servlet-name>WatchList</servlet-name>
-        <url-pattern>/watch-list</url-pattern>
+        <servlet-name>Watchlist</servlet-name>
+        <url-pattern>/watchlist</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
-        <servlet-name>WatchListCallback</servlet-name>
-        <url-pattern>/watch-list-callback</url-pattern>
+        <servlet-name>WatchlistCallback</servlet-name>
+        <url-pattern>/watchlist-callback</url-pattern>
     </servlet-mapping>
 </web-app>

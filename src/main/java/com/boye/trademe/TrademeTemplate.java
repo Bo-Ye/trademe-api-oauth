@@ -23,20 +23,19 @@ import java.util.*;
  * Created by boy on 11/12/15.
  */
 public class TrademeTemplate {
+
     //properties
-    private static final String OAUTH_COSUMER_KEY = "";
-    private static final String OAUTH_COSUMER_SECRET = "";
+    private static final String OAUTH_COSUMER_KEY = "<place your one>";
+    private static final String OAUTH_COSUMER_SECRET = "<place your one>";
     private static final String OAUTH_REQUEST_TOKEN_URL = "https://secure.tmsandbox.co.nz/Oauth/RequestToken?scope=MyTradeMeRead,MyTradeMeWrite";
     private static final String OAUTH_AUTHORIZATION_URL = "https://secure.tmsandbox.co.nz/Oauth/Authorize";
     private static final String OAUTH_ACCESS_TOKEN_URL = "https://secure.tmsandbox.co.nz/Oauth/AccessToken";
-    //callback
-    private static final String CALLBACK_URL = "http://localhost:8080/trademe-api-oauth/watch-list-callback";
     //constants
     private static final String HMAC_SHA1 = "HmacSHA1";
-
     private static final Random RAND = new Random();
     //singleton
     private static TrademeTemplate instance;
+    //variables
     private String token;
     private String tokenSecret;
 
@@ -51,6 +50,62 @@ public class TrademeTemplate {
         return instance;
     }
 
+    //////encoding is intensively applied////
+    /**
+     * special URL encoding
+     *
+     * @param value
+     * @return
+     */
+    private String encodeParameter(String value) {
+        try {
+            String encoded = URLEncoder.encode(value, "UTF-8");
+            StringBuilder buf = new StringBuilder(encoded.length());
+            char focus;
+            for (int i = 0; i < encoded.length(); i++) {
+                focus = encoded.charAt(i);
+                if (focus == '*') {
+                    buf.append("%2A");
+                } else if (focus == '+') {
+                    buf.append("%20");
+                } else if (focus == '%' && (i + 1) < encoded.length() && encoded.charAt(i + 1) == '7' && encoded.charAt(i + 2) == 'E') {
+                    buf.append('~');
+                    i += 2;
+                } else {
+                    buf.append(focus);
+                }
+            }
+            return buf.toString();
+        } catch (UnsupportedEncodingException e) {
+            throw new AssertionError("Impossible exception!", e);
+        }
+    }
+
+    private String encodeParametersToString(Map<String, String> params, String splitter, boolean quot) {
+        StringBuilder buf = new StringBuilder();
+        params.entrySet().stream().forEach((param) -> {
+            if (buf.length() != 0) {
+                if (quot) {
+                    buf.append("\"");
+                }
+                buf.append(splitter);
+            }
+            buf.append(encodeParameter(param.getKey()));
+            buf.append("=");
+            if (quot) {
+                buf.append("\"");
+            }
+            buf.append(encodeParameter(param.getValue()));
+        });
+        if (buf.length() != 0) {
+            if (quot) {
+                buf.append("\"");
+            }
+        }
+        return buf.toString();
+    }
+
+    ////generating stuff
     /**
      * Remove query string and default ports, lowercase base url.
      *
@@ -78,52 +133,6 @@ public class TrademeTemplate {
         url = baseURL + url.substring(slashIndex);
         return url;
     }
-
-
-    public String encodeParametersToString(Map<String, String> params, String splitter, boolean quot) {
-        StringBuilder buf = new StringBuilder();
-        for (Map.Entry<String, String> param : params.entrySet()) {
-            if (buf.length() != 0) {
-                if (quot) {
-                    buf.append("\"");
-                }
-                buf.append(splitter);
-            }
-            buf.append(encodeParameter(param.getKey()));
-            buf.append("=");
-            if (quot) {
-                buf.append("\"");
-            }
-            buf.append(encodeParameter(param.getValue()));
-        }
-        if (buf.length() != 0) {
-            if (quot) {
-                buf.append("\"");
-            }
-        }
-        return buf.toString();
-    }
-
-
-    private String generateSignature(String data, String oauthConsumerSecret, String token, String tokenSecret) {
-        try {
-            SecretKeySpec spec;
-            if (token == null) {
-                String secret = encodeParameter(oauthConsumerSecret) + "&";
-                spec = new SecretKeySpec(secret.getBytes(), HMAC_SHA1);
-            } else {
-                String secret = encodeParameter(oauthConsumerSecret) + "&" + encodeParameter(tokenSecret);
-                spec = new SecretKeySpec(secret.getBytes(), HMAC_SHA1);
-            }
-            Mac mac = Mac.getInstance(HMAC_SHA1);
-            mac.init(spec);
-            byte[] byteHMAC = mac.doFinal(data.getBytes());
-            return Base64.getEncoder().encodeToString(byteHMAC);
-        } catch (InvalidKeyException | NoSuchAlgorithmException e) {
-            throw new AssertionError("Impossible exception!", e);
-        }
-    }
-
 
     private Map<String, String> generateOAuthParameters(String oauthConsumerKey, String oauthTimestamp, String oauthNonce, String oauthToken) {
         Map<String, String> oauthParams = new HashMap<>();
@@ -170,37 +179,39 @@ public class TrademeTemplate {
         }
     }
 
-    /**
-     * special URL encoding
-     *
-     * @param value
-     * @return
-     */
-    private String encodeParameter(String value) {
+    private String generateSignature(String data, String oauthConsumerSecret, String token, String tokenSecret) {
         try {
-            String encoded = URLEncoder.encode(value, "UTF-8");
-            StringBuilder buf = new StringBuilder(encoded.length());
-            char focus;
-            for (int i = 0; i < encoded.length(); i++) {
-                focus = encoded.charAt(i);
-                if (focus == '*') {
-                    buf.append("%2A");
-                } else if (focus == '+') {
-                    buf.append("%20");
-                } else if (focus == '%' && (i + 1) < encoded.length() && encoded.charAt(i + 1) == '7' && encoded.charAt(i + 2) == 'E') {
-                    buf.append('~');
-                    i += 2;
-                } else {
-                    buf.append(focus);
-                }
+            SecretKeySpec spec;
+            if (token == null) {
+                String secret = encodeParameter(oauthConsumerSecret) + "&";
+                spec = new SecretKeySpec(secret.getBytes(), HMAC_SHA1);
+            } else {
+                String secret = encodeParameter(oauthConsumerSecret) + "&" + encodeParameter(tokenSecret);
+                spec = new SecretKeySpec(secret.getBytes(), HMAC_SHA1);
             }
-            return buf.toString();
-        } catch (UnsupportedEncodingException e) {
+            Mac mac = Mac.getInstance(HMAC_SHA1);
+            mac.init(spec);
+            byte[] byteHMAC = mac.doFinal(data.getBytes());
+            return Base64.getEncoder().encodeToString(byteHMAC);
+        } catch (InvalidKeyException | NoSuchAlgorithmException e) {
             throw new AssertionError("Impossible exception!", e);
         }
     }
 
-    public String generateAuthorizationHeader(String httpMethod, String url, String oauthConsumerKey, String oauthTimestamp, String oauthNonce, String oauthToken, String oauthCallback, String oauthVerifier, String tokenSecret) {
+    /**
+    The most important and complicated method in OAuth flow
+    @param httpMethod
+    @param url
+    @param oauthConsumerKey
+    @param oauthTimestamp
+    @param oauthNonce
+    @param oauthToken
+    @param oauthCallback
+    @param oauthVerifier
+    @param tokenSecret
+    @return authorization header
+     */
+    private String generateAuthorizationHeader(String httpMethod, String url, String oauthConsumerKey, String oauthTimestamp, String oauthNonce, String oauthToken, String oauthCallback, String oauthVerifier, String tokenSecret) {
         //base http method
         String baseHttpMethod = httpMethod;
         //base url
@@ -230,36 +241,25 @@ public class TrademeTemplate {
         return this.generateAuthorizationHeader(httpMethod, url, oauthConsumerKey, String.valueOf(timestamp), String.valueOf(nonce), oauthToken, oauthCallback, oauthVerifier, tokenSecret);
     }
 
-    private String getParameter(String[] responseStr, String parameter) {
-        String value = null;
-        for (String str : responseStr) {
-            if (str.startsWith(parameter + '=')) {
-                value = str.split("=")[1].trim();
-                break;
-            }
-        }
-        return value;
-    }
-
     /**
      * Step 1,2,3 get request token to combine authorization URL.
      *
+     * @param callbackURL
      * @return authorization URL
      * @throws java.io.IOException
      */
-    public String getAuthorizationURL() throws IOException {
-        String authorizationHeader = this.generateAuthorizationHeader("POST", OAUTH_REQUEST_TOKEN_URL, OAUTH_COSUMER_KEY, null, CALLBACK_URL, null, null);
+    public String getAuthorizationURL(String callbackURL) throws IOException {
+        String authorizationHeader = this.generateAuthorizationHeader("POST", OAUTH_REQUEST_TOKEN_URL, OAUTH_COSUMER_KEY, null, callbackURL, null, null);
         CloseableHttpClient httpclient = HttpClients.createDefault();
         HttpPost httpPost = new HttpPost(OAUTH_REQUEST_TOKEN_URL);
         httpPost.addHeader("Authorization", authorizationHeader);
         httpPost.addHeader("Content-Type", "application/x-www-form-urlencoded");
-        String body = encodeParametersToString(this.generateExtraOAuthParameters(CALLBACK_URL, null), "&", false);
+        String body = encodeParametersToString(this.generateExtraOAuthParameters(callbackURL, null), "&", false);
         httpPost.setEntity(new StringEntity(body));
         try (CloseableHttpResponse response = httpclient.execute(httpPost)) {
             HttpEntity entity = response.getEntity();
-            String result = EntityUtils.toString(entity);
-            System.out.println("request token string: " + result);
-            String[] responseStr = result.split("&");
+            String responseStr = EntityUtils.toString(entity);
+            System.out.println("request token string: " + responseStr);
             this.token = getParameter(responseStr, "oauth_token");
             this.tokenSecret = getParameter(responseStr, "oauth_token_secret");
             return OAUTH_AUTHORIZATION_URL + "?oauth_token=" + token;
@@ -282,9 +282,8 @@ public class TrademeTemplate {
         httpPost.setEntity(new StringEntity(body));
         try (CloseableHttpResponse response = httpclient.execute(httpPost)) {
             HttpEntity entity = response.getEntity();
-            String result = EntityUtils.toString(entity);
-            System.out.println("access token result: " + result);
-            String[] responseStr = result.split("&");
+            String responseStr = EntityUtils.toString(entity);
+            System.out.println("access token string: " + responseStr);
             this.token = getParameter(responseStr, "oauth_token");
             this.tokenSecret = getParameter(responseStr, "oauth_token_secret");
         }
@@ -305,8 +304,20 @@ public class TrademeTemplate {
         try (CloseableHttpResponse response = httpclient.execute(httpGet)) {
             HttpEntity entity = response.getEntity();
             String result = EntityUtils.toString(entity);
-            System.out.println("url result: " + result);
+            System.out.println("watchlist in xml: " + result);
             return result;
         }
+    }
+
+    //trivial method
+    private String getParameter(String responseStr, String parameter) {
+        String value = null;
+        for (String str : responseStr.split("&")) {
+            if (str.startsWith(parameter + '=')) {
+                value = str.split("=")[1].trim();
+                break;
+            }
+        }
+        return value;
     }
 }
