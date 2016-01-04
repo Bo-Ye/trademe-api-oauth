@@ -208,10 +208,11 @@ public class TrademeTemplate {
     @param oauthToken
     @param oauthCallback
     @param oauthVerifier
+    @param oauthConsumerSecret
     @param tokenSecret
     @return authorization header
      */
-    private String generateAuthorizationHeader(String httpMethod, String url, String oauthConsumerKey, String oauthTimestamp, String oauthNonce, String oauthToken, String oauthCallback, String oauthVerifier, String tokenSecret) {
+    private String generateAuthorizationHeader(String httpMethod, String url, String oauthConsumerKey, String oauthTimestamp, String oauthNonce, String oauthToken, String oauthCallback, String oauthVerifier, String oauthConsumerSecret, String tokenSecret) {
         //base http method
         String baseHttpMethod = httpMethod;
         //base url
@@ -228,17 +229,17 @@ public class TrademeTemplate {
         //combine all
         String oauthBaseString = baseHttpMethod + "&" + baseURL + "&" + baseParameters;
         //generate signature
-        String signature = generateSignature(oauthBaseString, OAUTH_COSUMER_SECRET, oauthToken, tokenSecret);
+        String signature = generateSignature(oauthBaseString, oauthConsumerSecret, oauthToken, tokenSecret);
         //generate header string
         oauthParams.put("oauth_signature", signature);
         String result = "OAuth " + encodeParametersToString(oauthParams, ",", true);
         return result;
     }
 
-    private String generateAuthorizationHeader(String httpMethod, String url, String oauthConsumerKey, String oauthToken, String oauthCallback, String oauthVerifier, String tokenSecret) {
+    private String generateAuthorizationHeader(String httpMethod, String url, String oauthConsumerKey, String oauthToken, String oauthCallback, String oauthVerifier, String oauthConsumerSecret, String tokenSecret) {
         long timestamp = System.currentTimeMillis() / 1000;
         long nonce = timestamp + RAND.nextInt();
-        return this.generateAuthorizationHeader(httpMethod, url, oauthConsumerKey, String.valueOf(timestamp), String.valueOf(nonce), oauthToken, oauthCallback, oauthVerifier, tokenSecret);
+        return this.generateAuthorizationHeader(httpMethod, url, oauthConsumerKey, String.valueOf(timestamp), String.valueOf(nonce), oauthToken, oauthCallback, oauthVerifier, oauthConsumerSecret, tokenSecret);
     }
 
     /**
@@ -249,7 +250,7 @@ public class TrademeTemplate {
      * @throws java.io.IOException
      */
     public String getAuthorizationURL(String callbackURL) throws IOException {
-        String authorizationHeader = this.generateAuthorizationHeader("POST", OAUTH_REQUEST_TOKEN_URL, OAUTH_COSUMER_KEY, null, callbackURL, null, null);
+        String authorizationHeader = this.generateAuthorizationHeader("POST", OAUTH_REQUEST_TOKEN_URL, OAUTH_COSUMER_KEY, null, callbackURL, null, OAUTH_COSUMER_SECRET, null);
         CloseableHttpClient httpclient = HttpClients.createDefault();
         HttpPost httpPost = new HttpPost(OAUTH_REQUEST_TOKEN_URL);
         httpPost.addHeader("Authorization", authorizationHeader);
@@ -273,7 +274,7 @@ public class TrademeTemplate {
      * @throws java.io.IOException
      */
     public void setUpAccessToken(String oauthVerifier) throws IOException {
-        String authorizationHeader = this.generateAuthorizationHeader("POST", OAUTH_ACCESS_TOKEN_URL, OAUTH_COSUMER_KEY, this.token, null, oauthVerifier, this.tokenSecret);
+        String authorizationHeader = this.generateAuthorizationHeader("POST", OAUTH_ACCESS_TOKEN_URL, OAUTH_COSUMER_KEY, this.token, null, oauthVerifier, OAUTH_COSUMER_SECRET, this.tokenSecret);
         CloseableHttpClient httpclient = HttpClients.createDefault();
         HttpPost httpPost = new HttpPost(OAUTH_ACCESS_TOKEN_URL);
         httpPost.addHeader("Authorization", authorizationHeader);
@@ -293,11 +294,11 @@ public class TrademeTemplate {
      * Step 8: call API.
      *
      * @param url
-     * @return xml response
+     * @return XML response
      * @throws java.io.IOException
      */
     public String call(String url) throws IOException {
-        String authorizationHeader = this.generateAuthorizationHeader("GET", url, OAUTH_COSUMER_KEY, this.token, null, null, this.tokenSecret);
+        String authorizationHeader = this.generateAuthorizationHeader("GET", url, OAUTH_COSUMER_KEY, this.token, null, null, OAUTH_COSUMER_SECRET, this.tokenSecret);
         CloseableHttpClient httpclient = HttpClients.createDefault();
         HttpGet httpGet = new HttpGet(url);
         httpGet.addHeader("Authorization", authorizationHeader);
