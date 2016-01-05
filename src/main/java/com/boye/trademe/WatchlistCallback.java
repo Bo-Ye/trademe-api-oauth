@@ -15,6 +15,13 @@ public class WatchlistCallback extends HttpServlet {
     private static final String WATCH_LIST_URL = "https://api.tmsandbox.co.nz/v1/MyTradeMe/Watchlist/All.xml";
     private final TrademeTemplate trademeTemplate = TrademeTemplate.getInstance();
 
+    /**
+     * Step 6: trade me server redirects the user to the callback on the client
+     *
+     * @param request
+     * @param response
+     * @throws IOException
+     */
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String oauthVerifier = request.getParameter("oauth_verifier");

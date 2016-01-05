@@ -51,6 +51,7 @@ public class TrademeTemplate {
     }
 
     //////encoding is intensively applied////
+
     /**
      * special URL encoding
      *
@@ -106,6 +107,7 @@ public class TrademeTemplate {
     }
 
     ////generating stuff
+
     /**
      * Remove query string and default ports, lowercase base url.
      *
@@ -199,18 +201,19 @@ public class TrademeTemplate {
     }
 
     /**
-    The most important and complicated method in OAuth flow
-    @param httpMethod
-    @param url
-    @param oauthConsumerKey
-    @param oauthTimestamp
-    @param oauthNonce
-    @param oauthToken
-    @param oauthCallback
-    @param oauthVerifier
-    @param oauthConsumerSecret
-    @param tokenSecret
-    @return authorization header
+     * The most important and complicated method in OAuth flow
+     *
+     * @param httpMethod
+     * @param url
+     * @param oauthConsumerKey
+     * @param oauthTimestamp
+     * @param oauthNonce
+     * @param oauthToken
+     * @param oauthCallback
+     * @param oauthVerifier
+     * @param oauthConsumerSecret
+     * @param tokenSecret
+     * @return authorization header
      */
     private String generateAuthorizationHeader(String httpMethod, String url, String oauthConsumerKey, String oauthTimestamp, String oauthNonce, String oauthToken, String oauthCallback, String oauthVerifier, String oauthConsumerSecret, String tokenSecret) {
         //base http method
@@ -243,7 +246,8 @@ public class TrademeTemplate {
     }
 
     /**
-     * Step 1,2,3 get request token to combine authorization URL.
+     * Step 2: generate a temporary request token.
+     * Step 3: generate the authorization URL.
      *
      * @param callbackURL
      * @return authorization URL
@@ -268,7 +272,7 @@ public class TrademeTemplate {
     }
 
     /**
-     * Step 7: set up access token by oauth_verifier.
+     * Step 7: generate access token and set it up.
      *
      * @param oauthVerifier
      * @throws java.io.IOException
@@ -291,7 +295,7 @@ public class TrademeTemplate {
     }
 
     /**
-     * Step 8: call API.
+     * Step 8: call an API.
      *
      * @param url
      * @return XML response

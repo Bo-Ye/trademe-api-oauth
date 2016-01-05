@@ -1,6 +1,7 @@
 package com.boye.trademe;
 
 // Import required java libraries
+
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -14,7 +15,10 @@ public class Watchlist extends HttpServlet {
     private final TrademeTemplate trademeTemplate = TrademeTemplate.getInstance();
 
     /**
-     * Step 4: redirect to authorization URL
+     * Step 1: a user accesses the client
+     * Step 4: redirect to the authorization page.
+     * Step 5: the user grants permission.
+     *
      * @param request
      * @param response
      * @throws java.io.IOException
