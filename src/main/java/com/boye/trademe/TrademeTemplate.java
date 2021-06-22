@@ -1,5 +1,21 @@
 package com.boye.trademe;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Random;
+import java.util.TreeMap;
+
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -9,24 +25,12 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.util.*;
-
 /**
  * Created by boy on 11/12/15.
  */
 public class TrademeTemplate {
 
     //properties
-    private static final String OAUTH_COSUMER_KEY = "<place your one>";
-    private static final String OAUTH_COSUMER_SECRET = "<place your one>";
     private static final String OAUTH_REQUEST_TOKEN_URL = "https://secure.tmsandbox.co.nz/Oauth/RequestToken?scope=MyTradeMeRead,MyTradeMeWrite";
     private static final String OAUTH_AUTHORIZATION_URL = "https://secure.tmsandbox.co.nz/Oauth/Authorize";
     private static final String OAUTH_ACCESS_TOKEN_URL = "https://secure.tmsandbox.co.nz/Oauth/AccessToken";
@@ -36,11 +40,21 @@ public class TrademeTemplate {
     //singleton
     private static TrademeTemplate instance;
     //variables
+    private String consumerKey;
+    private String consumerSecret;
     private String token;
     private String tokenSecret;
 
     private TrademeTemplate() {
-
+        try {
+            Properties prop = new Properties();
+            prop.load(this.getClass().getResourceAsStream("/trademe.properties"));
+            consumerKey = prop.getProperty("oauth.consumerKey");
+            consumerSecret = prop.getProperty("oauth.consumerSecret");
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static synchronized TrademeTemplate getInstance() {
@@ -254,7 +268,7 @@ public class TrademeTemplate {
      * @throws java.io.IOException
      */
     public String getAuthorizationURL(String callbackURL) throws IOException {
-        String authorizationHeader = this.generateAuthorizationHeader("POST", OAUTH_REQUEST_TOKEN_URL, OAUTH_COSUMER_KEY, null, callbackURL, null, OAUTH_COSUMER_SECRET, null);
+        String authorizationHeader = this.generateAuthorizationHeader("POST", OAUTH_REQUEST_TOKEN_URL, consumerKey, null, callbackURL, null, consumerSecret, null);
         CloseableHttpClient httpclient = HttpClients.createDefault();
         HttpPost httpPost = new HttpPost(OAUTH_REQUEST_TOKEN_URL);
         httpPost.addHeader("Authorization", authorizationHeader);
@@ -278,7 +292,7 @@ public class TrademeTemplate {
      * @throws java.io.IOException
      */
     public void setUpAccessToken(String oauthVerifier) throws IOException {
-        String authorizationHeader = this.generateAuthorizationHeader("POST", OAUTH_ACCESS_TOKEN_URL, OAUTH_COSUMER_KEY, this.token, null, oauthVerifier, OAUTH_COSUMER_SECRET, this.tokenSecret);
+        String authorizationHeader = this.generateAuthorizationHeader("POST", OAUTH_ACCESS_TOKEN_URL, consumerKey, this.token, null, oauthVerifier, consumerSecret, this.tokenSecret);
         CloseableHttpClient httpclient = HttpClients.createDefault();
         HttpPost httpPost = new HttpPost(OAUTH_ACCESS_TOKEN_URL);
         httpPost.addHeader("Authorization", authorizationHeader);
@@ -302,7 +316,7 @@ public class TrademeTemplate {
      * @throws java.io.IOException
      */
     public String call(String url) throws IOException {
-        String authorizationHeader = this.generateAuthorizationHeader("GET", url, OAUTH_COSUMER_KEY, this.token, null, null, OAUTH_COSUMER_SECRET, this.tokenSecret);
+        String authorizationHeader = this.generateAuthorizationHeader("GET", url, consumerKey, this.token, null, null, consumerSecret, this.tokenSecret);
         CloseableHttpClient httpclient = HttpClients.createDefault();
         HttpGet httpGet = new HttpGet(url);
         httpGet.addHeader("Authorization", authorizationHeader);

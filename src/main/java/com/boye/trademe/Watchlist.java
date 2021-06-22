@@ -11,7 +11,7 @@ public class Watchlist extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
     //watchlist callback
-    private static final String CALLBACK_URL = "http://localhost:8080/trademe-api-oauth/watchlist-callback";
+    private static final String CALLBACK_URL = "https://localhost:8443/trademe-api-oauth/watchlist-callback";
     private final TrademeTemplate trademeTemplate = TrademeTemplate.getInstance();
 
     /**
